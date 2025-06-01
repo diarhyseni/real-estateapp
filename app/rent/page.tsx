@@ -91,6 +91,20 @@ export default function RentPage() {
     // Filter by features (only parking is left in the filter component)
     if (filters.hasParking) filtered = filtered.filter(p => (p.parking || 0) > 0)
 
+    // Filter by city
+    if (filters.city) {
+      filtered = filtered.filter(property => property.city === filters.city);
+    }
+
+    // Filter by search
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      filtered = filtered.filter(property =>
+        (property.title && property.title.toLowerCase().includes(searchLower)) ||
+        (property.address && property.address.toLowerCase().includes(searchLower))
+      );
+    }
+
     setFilteredProperties(filtered)
   }, [properties]) // Only depend on properties array
 

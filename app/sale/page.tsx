@@ -109,6 +109,20 @@ export default function SalePage() {
     if (filters.hasHeating) filtered = filtered.filter(p => p.hasHeating)
     if (filters.hasInternet) filtered = filtered.filter(p => p.hasInternet)
 
+    // Filter by city
+    if (filters.city) {
+      filtered = filtered.filter(property => property.city === filters.city);
+    }
+
+    // Filter by search
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      filtered = filtered.filter(property =>
+        (property.title && property.title.toLowerCase().includes(searchLower)) ||
+        (property.address && property.address.toLowerCase().includes(searchLower))
+      );
+    }
+
     setFilteredProperties(filtered)
   }, [properties])
 
@@ -116,7 +130,7 @@ export default function SalePage() {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 container py-8">
-        <h1 className="text-3xl font-bold mb-8">Properties for Sale</h1>
+        <h1 className="text-3xl font-bold mb-8">Pronat në shitje</h1>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="md:col-span-1">
             <PropertyFilters 

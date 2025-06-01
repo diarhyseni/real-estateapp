@@ -11,11 +11,12 @@ interface PropertyFiltersProps {
   onFilterChange?: (filters: any) => void
   initialType?: "RENT" | "SALE"
   properties: Property[]
+  category?: string
 }
 
 const PRICE_STEP = 1000 // 1000€ step
 
-export default function PropertyFilters({ onFilterChange, initialType, properties = [] }: PropertyFiltersProps) {
+export default function PropertyFilters({ onFilterChange, initialType, properties = [], category }: PropertyFiltersProps) {
   console.log('PropertyFilters rendered', { onFilterChange });
 
   // Calculate dynamic ranges from properties
@@ -63,6 +64,8 @@ export default function PropertyFilters({ onFilterChange, initialType, propertie
     minArea: '',
     maxArea: '',
     hasParking: false,
+    city: '',
+    search: '',
   })
 
   // Only reset filters when the properties prop reference changes
@@ -75,6 +78,8 @@ export default function PropertyFilters({ onFilterChange, initialType, propertie
         minArea: '',
         maxArea: '',
         hasParking: false,
+        city: '',
+        search: '',
       });
       prevPropertiesRef.current = properties;
     }
@@ -214,6 +219,8 @@ export default function PropertyFilters({ onFilterChange, initialType, propertie
         ...filters,
         minArea: filters.minArea === '' ? undefined : parseFloat(filters.minArea),
         maxArea: filters.maxArea === '' ? undefined : parseFloat(filters.maxArea),
+        city: filters.city || undefined,
+        search: filters.search || undefined,
         bedrooms: filters.bedrooms === 'any' ? undefined : filters.bedrooms,
         hasParking: filters.hasParking,
       };
@@ -221,6 +228,9 @@ export default function PropertyFilters({ onFilterChange, initialType, propertie
       onFilterChange(finalFilters);
     }
   }, [filters, onFilterChange]);
+
+  // Get unique city values from properties
+  const cityOptions = Array.from(new Set((properties || []).map(p => p.city).filter(Boolean)));
 
   return (
     <div className="space-y-6 p-4 bg-white rounded-lg shadow">
@@ -243,6 +253,30 @@ export default function PropertyFilters({ onFilterChange, initialType, propertie
       </div>
 
       <div className={cn("space-y-4", isCollapsed && 'max-md:hidden')}>
+        <div>
+          <input
+            type="text"
+            name="search"
+            value={filters.search}
+            onChange={handleChange}
+            placeholder="Kërko pronë..."
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2">Qyteti</label>
+          <select
+            name="city"
+            value={filters.city}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Të gjitha qytetet</option>
+            {cityOptions.map(city => (
+              <option key={city} value={city}>{city}</option>
+            ))}
+          </select>
+        </div>
         <div>
           <label className="block text-sm font-medium mb-2">Çmimi (Min - Max)</label>
           <div 
@@ -274,19 +308,25 @@ export default function PropertyFilters({ onFilterChange, initialType, propertie
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">Dhomat</label>
-          <select
-            name="bedrooms"
-            value={filters.bedrooms}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            {BEDROOM_OPTIONS.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-        </div>
+        {/* Dhomat e gjumit filter, hidden for certain categories */}
+        {!["warehouse", "object", "local", "office", "land"].includes((category || "").toLowerCase()) && (
+          <div>
+            <label className="block text-sm font-medium mb-2">Dhomat e gjumit</label>
+            <div className="flex gap-4 mb-4">
+              {BEDROOM_OPTIONS.slice(1).map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  className={`w-12 h-12 flex items-center justify-center rounded-full border text-lg font-medium transition-colors
+                    ${filters.bedrooms === opt.value ? 'bg-blue-100 border-blue-500 text-blue-700' : 'bg-white border-gray-300 text-gray-800 hover:border-blue-300'}`}
+                  onClick={() => setFilters(prev => ({ ...prev, bedrooms: prev.bedrooms === opt.value ? 'any' : opt.value }))}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Bathroom filter commented out as requested */}
         {/*
@@ -304,25 +344,7 @@ export default function PropertyFilters({ onFilterChange, initialType, propertie
           </select>
         </div>
         */}
-
-        {/* Features section */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium mb-2">Karakteristikat e pronës</label>
-          <div className="grid grid-cols-2 gap-2">
-            <label className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                name="hasParking"
-                checked={filters.hasParking}
-                onChange={handleChange}
-                className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
-              />
-              <span className="text-sm">Parking</span>
-            </label>
-          </div>
-        </div>
-
-        <div>
+ <div>
           <label className="block text-sm font-medium mb-2">Sipërfaqja (m²)</label>
           <div className="flex gap-2">
             <Input
@@ -345,6 +367,26 @@ export default function PropertyFilters({ onFilterChange, initialType, propertie
             />
           </div>
         </div>
+        {/* Features section */}
+        {/*
+        <div className="space-y-2">
+          <label className="block text-sm font-medium mb-2">Karakteristikat e tjera</label>
+          <div className="grid grid-cols-2 gap-2">
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                name="hasParking"
+                checked={filters.hasParking}
+                onChange={handleChange}
+                className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm">Parking</span>
+            </label>
+          </div>
+        </div>
+        */}
+
+       
       </div>
     </div>
   )

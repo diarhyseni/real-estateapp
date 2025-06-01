@@ -99,6 +99,11 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
     if (filters.hasHeating) filtered = filtered.filter(p => p.hasHeating)
     if (filters.hasInternet) filtered = filtered.filter(p => p.hasInternet)
 
+    // Filter by city
+    if (filters.city) {
+      filtered = filtered.filter(property => property.city === filters.city)
+    }
+
     // Strict area filter: always apply if either minArea or maxArea is set
     const minArea = (typeof filters.minArea === 'number' && !isNaN(filters.minArea)) ? filters.minArea : 0;
     const maxArea = (typeof filters.maxArea === 'number' && !isNaN(filters.maxArea)) ? filters.maxArea : Infinity;
@@ -125,6 +130,15 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
     });
     console.log('Filtered property IDs:', filtered.map(p => p.id));
 
+    // Filter by search
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      filtered = filtered.filter(property =>
+        (property.title && property.title.toLowerCase().includes(searchLower)) ||
+        (property.address && property.address.toLowerCase().includes(searchLower))
+      );
+    }
+
     setFilteredProperties(filtered)
   }, [properties])
 
@@ -144,6 +158,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
               onFilterChange={handleFilterChange}
               initialType={"RENT"}
               properties={memoizedProperties}
+              category={category?.value?.toLowerCase()}
             />
           </div>
           <div className="md:col-span-3">

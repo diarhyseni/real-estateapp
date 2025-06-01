@@ -42,6 +42,7 @@ export interface Property {
   hasElevator: boolean;
   latitude?: number;
   longitude?: number;
+  city?: string;
   characteristics: string[];
   nearbyPlaces: string[];
   images: string[];

@@ -66,9 +66,15 @@ export default function WarehousePage() {
               <div>Duke u ngarkuar...</div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {properties.map((property) => (
-                  <PropertyCard key={property.id} property={property} />
-                ))}
+                {properties.map((property) => {
+                  let areaInM2 = Number(property.area);
+                  if (property.areaUnit) {
+                    const unit = property.areaUnit.toLowerCase().replace(/\s|\./g, '');
+                    if (unit === 'ari') areaInM2 = areaInM2 * 100;
+                    if (unit === 'hektar' || unit === 'hektare' || unit === 'ha') areaInM2 = areaInM2 * 10000;
+                  }
+                  return areaInM2 >= minArea && areaInM2 <= maxArea;
+                })}
               </div>
             )}
           </div>

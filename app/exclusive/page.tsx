@@ -89,6 +89,21 @@ export default function ExclusivePage() {
     // Filter by features (only parking is left in the filter component)
     if (filters.hasParking) filtered = filtered.filter(p => (p.parking || 0) > 0)
 
+    // Filter by city
+    if (filters.city) {
+      filtered = filtered.filter(property => property.city === filters.city);
+    }
+
+    // Filter by search
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      filtered = filtered.filter(property =>
+        (property.title && property.title.toLowerCase().includes(searchLower)) ||
+        (property.location && property.location.toLowerCase().includes(searchLower)) ||
+        (property.description && property.description.toLowerCase().includes(searchLower))
+      );
+    }
+
     setFilteredProperties(filtered)
   }, [properties]) // Only depend on properties array
 
@@ -96,7 +111,7 @@ export default function ExclusivePage() {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 container py-8">
-        <h1 className="text-3xl font-bold mb-8">Exclusive Properties</h1>
+        <h1 className="text-3xl font-bold mb-8">Pronat ekskluzive</h1>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="md:col-span-1">
             <PropertyFilters 
