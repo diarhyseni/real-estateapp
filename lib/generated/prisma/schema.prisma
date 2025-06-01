@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Property {
+  id                 String   @id @default(cuid())
+  title              String
+  location           String
+  price              String
+  currency           String   @default("EUR")
+  typeId             String?
+  typeRelation       Type?    @relation(fields: [typeId], references: [id])
+  categoryId         String
+  category           Category   @relation(fields: [categoryId], references: [id], name: "CategoryProperties")
+  bedrooms           Int?
+  bathrooms          Int?
+  area               Float
+  parking            Int?
+  isExclusive        Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  hasBalcony         Boolean  @default(false)
+  hasElevator        Boolean  @default(false)
+  hasHeating         Boolean  @default(false)
+  description        String?
+  latitude           String?
+  longitude          String?
+  characteristics    String[]
+  hasAirConditioning Boolean  @default(false)
+  hasGarden          Boolean  @default(false)
+  hasInternet        Boolean  @default(false)
+  hasPool            Boolean  @default(false)
+  hasSecurity        Boolean  @default(false)
+  images             String[]
+  nearbyPlaces       String[]
+  areaUnit           String   @default("m2")
+  statuses           String[]
+}
