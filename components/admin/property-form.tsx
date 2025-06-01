@@ -107,7 +107,7 @@ export default function PropertyForm() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="EUR">EUR</SelectItem>
-              <SelectItem value="USD">USD</SelectItem>
+              <SelectItem value="USD">USD($)</SelectItem>
             </SelectContent>
           </Select>
         </div>
