@@ -112,7 +112,7 @@ export default function RentPage() {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 container py-8">
-        <h1 className="text-3xl font-bold mb-8">Properties for Rent</h1>
+        <h1 className="text-3xl font-bold mb-8">Pronat me qira</h1>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="md:col-span-1">
             <PropertyFilters 
