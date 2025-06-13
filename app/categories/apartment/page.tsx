@@ -1,97 +1,81 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
-import PropertyCard from "@/components/property-card"
-import Header from "@/components/header"
-import Footer from "@/components/footer"
-import PropertyFilters from "@/components/property-filters"
+import { useEffect, useState, useMemo } from "react"
 import { Property } from "@/lib/types"
+import PropertyCard from "@/components/property-card"
+import PropertyFilters from "@/components/property-filters"
+import { Loader2 } from "lucide-react"
 
 export default function ApartmentPage() {
   const [properties, setProperties] = useState<Property[]>([])
-  const [loading, setLoading] = useState(true)
-  const [mounted, setMounted] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const fetchProperties = async (filters: any) => {
-    if (!mounted) return
-    
-    setLoading(true)
+  const fetchProperties = async (filters?: any) => {
     try {
-      const searchParams = new URLSearchParams()
-      searchParams.set('category', 'APARTMENT')
+      setIsLoading(true)
+      setError(null)
       
-      if (filters.priceRange) {
-        searchParams.set('priceMin', filters.priceRange[0])
-        searchParams.set('priceMax', filters.priceRange[1])
-      }
-      if (filters.bedrooms && filters.bedrooms !== 'any' && filters.bedrooms !== undefined) searchParams.set('bedrooms', filters.bedrooms)
-      if (filters.bathrooms && filters.bathrooms !== 'any' && filters.bathrooms !== undefined) searchParams.set('bathrooms', filters.bathrooms)
-      if (filters.area && filters.area !== 'any' && filters.area !== undefined) searchParams.set('area', filters.area)
-      
-      // Add feature filters
-      Object.entries(filters).forEach(([key, value]) => {
-        if (key.startsWith('has') && value === true) {
-          searchParams.set(key, 'true')
-        }
+      const queryParams = new URLSearchParams({
+        category: "APARTMENT",
+        ...filters
       })
 
-      const response = await fetch(`/api/properties?${searchParams.toString()}`)
+      const response = await fetch(`/api/properties/category?${queryParams}`)
+      if (!response.ok) throw new Error('Failed to fetch properties')
+      
       const data = await response.json()
-      if (mounted) {
-        console.log('Fetched properties for APARTMENT:', data)
-        setProperties(data)
-      }
+      setProperties(data)
     } catch (error) {
       console.error('Error fetching properties:', error)
+      setError('Failed to load properties')
     } finally {
-      if (mounted) {
-        setLoading(false)
-      }
+      setIsLoading(false)
     }
   }
 
   useEffect(() => {
-    setMounted(true)
-    fetchProperties({ category: 'APARTMENT' })
-    
-    return () => {
-      setMounted(false)
-    }
+    fetchProperties()
   }, [])
 
   const memoizedProperties = useMemo(() => properties, [properties])
 
-  if (!mounted) {
-    return null
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-red-500">{error}</p>
+      </div>
+    )
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="flex-1 container py-8">
-        <h1 className="text-3xl font-bold mb-8">Banesa</h1>
-        <div className="flex gap-8">
-          <aside className="w-80 flex-shrink-0">
-            <PropertyFilters 
-              onFilterChange={fetchProperties}
-              initialType="APARTMENT"
-              properties={memoizedProperties}
-            />
-          </aside>
-          <div className="flex-1">
-            {loading ? (
-              <div>Duke u ngarkuar...</div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {properties.map((property) => (
-                  <PropertyCard key={property.id} property={property} />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </main>
-      <Footer />
+    <div className="container mx-auto py-8">
+      <div className="flex flex-col md:flex-row gap-8">
+        <main className="flex-1">
+          {isLoading ? (
+            <div className="flex items-center justify-center min-h-[400px]">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          ) : properties.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500">No properties found</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {memoizedProperties.map((property) => (
+                <PropertyCard key={property.id} property={property} />
+              ))}
+            </div>
+          )}
+        </main>
+
+        <aside className="w-full md:w-80">
+          <PropertyFilters
+            onFilterChange={fetchProperties}
+            properties={memoizedProperties}
+          />
+        </aside>
+      </div>
     </div>
   )
 } 
