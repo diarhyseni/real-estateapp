@@ -1,100 +1,94 @@
-import { notFound } from "next/navigation"
-import { prisma } from "@/lib/db"
+"use client"
+
+import { useEffect, useState } from "react"
+import { Property } from "@/lib/types"
 import PropertyDetails from "@/components/property-details"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
-import { Property } from "@/lib/types"
-import { cn, formatPrice } from "@/lib/utils"
+import { Loader2 } from "lucide-react"
 
-export default async function PropertyPage({ params }: { params: { id: string } }) {
-  if (!params.id) {
-    notFound()
+type PropertyWithUser = Property & {
+  user?: {
+    id: string
+    name: string | null
+    email: string | null
+    phone: string | null
+    image: string | null
   }
+  address?: string
+}
 
-  try {
-    const property = await prisma.property.findUnique({
-      where: { id: params.id },
-      include: {
-        typeRelation: true,
-        category: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            phone: true,
-            image: true
-          }
+export default function PropertyPage({ params }: { params: { id: string } }) {
+  const [property, setProperty] = useState<PropertyWithUser | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchProperty = async () => {
+      try {
+        setIsLoading(true)
+        setError(null)
+        
+        const response = await fetch(`/api/properties/${params.id}`)
+        if (!response.ok) throw new Error('Failed to fetch property')
+        
+        const data = await response.json()
+        
+        // Transform the user data to match the expected type
+        const transformedProperty: PropertyWithUser = {
+          ...data,
+          user: data.user ? {
+            id: data.user.id,
+            name: data.user.name || null,
+            email: data.user.email || null,
+            phone: data.user.phone || null,
+            image: data.user.image || null
+          } : undefined
         }
+        
+        setProperty(transformedProperty)
+      } catch (error) {
+        console.error('Error fetching property:', error)
+        setError('Failed to load property')
+      } finally {
+        setIsLoading(false)
       }
-    })
-
-    if (!property) {
-      console.log('Property not found with ID:', params.id)
-      notFound()
     }
 
-    // Transform the data to match the expected Property type
-    const typedProperty: Property = {
-      id: property.id,
-      title: property.title,
-      description: property.description || undefined,
-      price: property.price,
-      currency: property.currency,
-      type: property.typeRelation?.name,
-      category: property.category ? {
-        id: property.category.id,
-        name: property.category.name,
-        value: property.category.value
-      } : undefined,
-      categoryId: property.categoryId,
-      user: property.user ? {
-        id: property.user.id,
-        name: property.user.name || undefined,
-        email: property.user.email || undefined,
-        phone: property.user.phone || undefined,
-        image: property.user.image || undefined
-      } : undefined,
-      userId: property.userId || undefined,
-      location: property.location,
-      bedrooms: property.bedrooms || undefined,
-      bathrooms: property.bathrooms || undefined,
-      area: property.area,
-      areaUnit: property.areaUnit,
-      parking: property.parking || undefined,
-      createdAt: property.createdAt.toISOString(),
-      updatedAt: property.updatedAt.toISOString(),
-      isExclusive: property.isExclusive,
-      hasBalcony: property.hasBalcony,
-      hasGarden: property.hasGarden,
-      hasPool: property.hasPool,
-      hasSecurity: property.hasSecurity,
-      hasAirConditioning: property.hasAirConditioning,
-      hasHeating: property.hasHeating,
-      hasInternet: property.hasInternet,
-      hasElevator: property.hasElevator,
-      latitude: property.latitude ? parseFloat(property.latitude) : undefined,
-      longitude: property.longitude ? parseFloat(property.longitude) : undefined,
-      characteristics: property.characteristics,
-      nearbyPlaces: property.nearbyPlaces,
-      images: property.images,
-      statuses: property.statuses,
-      googleMapsIframe: property.googleMapsIframe || undefined,
-    }
+    fetchProperty()
+  }, [params.id])
 
-    console.log('Property data:', JSON.stringify(typedProperty, null, 2))
-
+  if (error) {
     return (
-      <div className="flex min-h-screen flex-col">
-        <Header />
-        <main className="flex-1 container py-8">
-          <PropertyDetails property={typedProperty} />
-        </main>
-        <Footer />
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-red-500">{error}</p>
       </div>
     )
-  } catch (error) {
-    console.error('Error fetching property:', error)
-    throw error
   }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    )
+  }
+
+  if (!property) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-500">Property not found</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      <main className="flex-1 container py-8">
+        <PropertyDetails property={property} />
+      </main>
+      <Footer />
+    </div>
+  )
 }
