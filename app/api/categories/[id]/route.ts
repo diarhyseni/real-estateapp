@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 
+type RouteContext = {
+  params: {
+    id: string
+  }
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteContext
 ) {
   const category = await prisma.category.findUnique({
-    where: { id: params.id },
+    where: { id: context.params.id },
     include: {
       _count: {
         select: { properties: true }
@@ -18,11 +24,11 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteContext
 ) {
   const data = await request.json()
   const category = await prisma.category.update({
-    where: { id: params.id },
+    where: { id: context.params.id },
     data,
   })
   return NextResponse.json(category)
@@ -30,8 +36,8 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteContext
 ) {
-  await prisma.category.delete({ where: { id: params.id } })
+  await prisma.category.delete({ where: { id: context.params.id } })
   return NextResponse.json({ success: true })
 } 
