@@ -28,6 +28,7 @@ export interface Property {
   bathrooms: number;
   area: number;
   areaUnit: string;
+  parking: number;
   createdAt: Date;
   updatedAt: Date;
   userId: string;
