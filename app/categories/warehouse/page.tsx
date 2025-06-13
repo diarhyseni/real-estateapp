@@ -6,7 +6,6 @@ import Header from "@/components/header"
 import Footer from "@/components/footer"
 import PropertyFilters from "@/components/property-filters"
 import { Property } from "@/lib/types"
-import AddCategoryModal from "@/components/admin/AddCategoryModal"
 
 export default function WarehousePage() {
   const [properties, setProperties] = useState<Property[]>([])
@@ -57,8 +56,8 @@ export default function WarehousePage() {
           <aside className="w-80 flex-shrink-0">
             <PropertyFilters 
               onFilterChange={fetchProperties}
-              initialType="WAREHOUSE"
               properties={memoizedProperties}
+              category="WAREHOUSE"
             />
           </aside>
           <div className="flex-1">
@@ -66,22 +65,15 @@ export default function WarehousePage() {
               <div>Duke u ngarkuar...</div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {properties.map((property) => {
-                  let areaInM2 = Number(property.area);
-                  if (property.areaUnit) {
-                    const unit = property.areaUnit.toLowerCase().replace(/\s|\./g, '');
-                    if (unit === 'ari') areaInM2 = areaInM2 * 100;
-                    if (unit === 'hektar' || unit === 'hektare' || unit === 'ha') areaInM2 = areaInM2 * 10000;
-                  }
-                  return areaInM2 >= minArea && areaInM2 <= maxArea;
-                })}
+                {properties.map((property) => (
+                  <PropertyCard key={property.id} property={property} />
+                ))}
               </div>
             )}
           </div>
         </div>
       </main>
       <Footer />
-      <AddCategoryModal />
     </div>
   )
 } 
