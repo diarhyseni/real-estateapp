@@ -17,6 +17,7 @@ export interface Property {
   title: string;
   description: string;
   price: number;
+  currency: string;
   type: "SALE" | "RENT";
   categoryId: string;
   images: string[];
