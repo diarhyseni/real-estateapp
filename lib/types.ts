@@ -6,46 +6,28 @@ export type Category = {
 
 export type User = {
   id: string;
-  name?: string;
-  email?: string;
-  phone?: string;
-  image?: string;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  image: string | null;
 }
 
 export interface Property {
   id: string;
   title: string;
-  description?: string;
+  description: string;
   price: number;
-  currency: string;
-  type?: string;
-  category?: Category;
+  type: "SALE" | "RENT";
   categoryId: string;
-  user?: User;
-  userId?: string;
-  location: string;
-  area: number;
-  areaUnit: string;
-  bedrooms?: number;
-  bathrooms?: number;
-  parking?: number;
-  createdAt: string;
-  updatedAt: string;
-  isExclusive: boolean;
-  hasBalcony: boolean;
-  hasGarden: boolean;
-  hasPool: boolean;
-  hasSecurity: boolean;
-  hasAirConditioning: boolean;
-  hasHeating: boolean;
-  hasInternet: boolean;
-  hasElevator: boolean;
-  latitude?: number;
-  longitude?: number;
-  city?: string;
-  characteristics: string[];
-  nearbyPlaces: string[];
   images: string[];
-  statuses?: string[];
-  googleMapsIframe?: string;
+  features: string[];
+  location: string;
+  address: string;
+  bedrooms: number;
+  bathrooms: number;
+  area: number;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+  user?: User;
 } 
