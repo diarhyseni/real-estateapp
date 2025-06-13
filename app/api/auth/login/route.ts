@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/server/db'
 import bcrypt from 'bcryptjs'
+import { sign } from 'jsonwebtoken'
 
 export async function POST(request: Request) {
   try {
@@ -13,12 +14,20 @@ export async function POST(request: Request) {
       )
     }
 
-    // Find user by email
+    // Find user
     const user = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
     })
 
     if (!user) {
+      return NextResponse.json(
+        { error: 'Invalid email or password' },
+        { status: 401 }
+      )
+    }
+
+    // Check if user has a password
+    if (!user.password) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
@@ -35,9 +44,14 @@ export async function POST(request: Request) {
       )
     }
 
-    // Return user data without password
-    const { password: _, ...userWithoutPassword } = user
-    return NextResponse.json(userWithoutPassword)
+    // Generate JWT
+    const token = sign(
+      { userId: user.id, email: user.email },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '7d' }
+    )
+
+    return NextResponse.json({ token })
   } catch (error) {
     console.error('Login error:', error)
     return NextResponse.json(
