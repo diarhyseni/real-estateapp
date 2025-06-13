@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { prisma } from '@/lib/server/db'
 
 export async function GET(request: Request) {
   try {
@@ -7,17 +7,25 @@ export async function GET(request: Request) {
     const category = searchParams.get('category')
 
     if (!category) {
-      return NextResponse.json({ error: 'Category is required' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Category parameter is required' },
+        { status: 400 }
+      )
     }
 
     const properties = await prisma.property.findMany({
-      where: { category },
+      where: {
+        categoryId: category
+      },
       orderBy: { createdAt: 'desc' }
     })
 
     return NextResponse.json(properties)
   } catch (error) {
-    console.error('Error fetching properties:', error)
-    return NextResponse.json({ error: 'Failed to fetch properties' }, { status: 500 })
+    console.error('Error fetching properties by category:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
   }
 } 
