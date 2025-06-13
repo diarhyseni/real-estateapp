@@ -27,6 +27,7 @@ export interface Property {
   bedrooms: number;
   bathrooms: number;
   area: number;
+  areaUnit: string;
   createdAt: Date;
   updatedAt: Date;
   userId: string;
