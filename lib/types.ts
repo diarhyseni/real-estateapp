@@ -44,6 +44,7 @@ export interface Property {
   hasElevator: boolean;
   statuses: string[];
   isExclusive: boolean;
+  googleMapsIframe: string;
   createdAt: Date;
   updatedAt: Date;
   userId: string;
