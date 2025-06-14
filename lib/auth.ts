@@ -8,7 +8,6 @@ import GoogleProvider from "next-auth/providers/google"
 import bcrypt from "bcryptjs"
 import { JWT } from "next-auth/jwt"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { User as PrismaUser } from "@prisma/client"
 import { AdapterUser } from "next-auth/adapters"
 
 export type UserRole = "user" | "agent" | "admin"
@@ -91,7 +90,7 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email }
         })
 
-        if (!user) {
+        if (!user || !user.password) {
           throw new Error("Email ose fjalëkalimi i gabuar")
         }
 
