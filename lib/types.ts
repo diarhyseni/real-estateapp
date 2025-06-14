@@ -41,6 +41,7 @@ export interface Property {
   hasHeating: boolean;
   hasInternet: boolean;
   hasElevator: boolean;
+  statuses: string[];
   createdAt: Date;
   updatedAt: Date;
   userId: string;
