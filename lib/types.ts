@@ -20,6 +20,7 @@ export interface Property {
   currency: string;
   type: "SALE" | "RENT";
   categoryId: string;
+  category: Category;
   images: string[];
   features: string[];
   location: string;
