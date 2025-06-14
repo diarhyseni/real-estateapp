@@ -59,8 +59,8 @@ async function main() {
       description: "Beautiful modern apartment in a prime location.",
       price: 120000,
       currency: "€",
-      type: "SALE",
-      categoryId: categoryMap.get("APARTMENT"),
+      type: "SALE" as const,
+      categoryId: categoryMap.get("APARTMENT")!,
       location: "Prishtina",
       area: 85,
       bedrooms: 2,
@@ -86,8 +86,8 @@ async function main() {
       description: "Spacious villa with beautiful garden and modern amenities.",
       price: 350000,
       currency: "€",
-      type: "SALE",
-      categoryId: categoryMap.get("HOUSE"),
+      type: "SALE" as const,
+      categoryId: categoryMap.get("HOUSE")!,
       location: "Prishtina",
       area: 250,
       bedrooms: 4,
@@ -113,8 +113,8 @@ async function main() {
       description: "Modern office space in the business district.",
       price: 200000,
       currency: "€",
-      type: "SALE",
-      categoryId: categoryMap.get("OFFICE"),
+      type: "SALE" as const,
+      categoryId: categoryMap.get("OFFICE")!,
       location: "Prishtina",
       area: 150,
       bedrooms: null,
@@ -140,8 +140,8 @@ async function main() {
       description: "Large plot of land in a developing area, perfect for residential or commercial development.",
       price: 500000,
       currency: "€",
-      type: "SALE",
-      categoryId: categoryMap.get("LAND"),
+      type: "SALE" as const,
+      categoryId: categoryMap.get("LAND")!,
       location: "Prishtina",
       area: 1000,
       bedrooms: null,
@@ -167,8 +167,8 @@ async function main() {
       description: "Luxurious penthouse with panoramic city views and modern amenities.",
       price: 450000,
       currency: "€",
-      type: "SALE",
-      categoryId: categoryMap.get("APARTMENT"),
+      type: "SALE" as const,
+      categoryId: categoryMap.get("APARTMENT")!,
       location: "Prishtina",
       area: 180,
       bedrooms: 3,
@@ -195,8 +195,8 @@ async function main() {
       description: "Cozy studio apartment perfect for students.",
       price: 350,
       currency: "€",
-      type: "RENT",
-      categoryId: categoryMap.get("APARTMENT"),
+      type: "RENT" as const,
+      categoryId: categoryMap.get("APARTMENT")!,
       location: "Prishtina",
       area: 45,
       bedrooms: 1,
@@ -222,8 +222,8 @@ async function main() {
       description: "Spacious family house in a quiet neighborhood.",
       price: 800,
       currency: "€",
-      type: "RENT",
-      categoryId: categoryMap.get("HOUSE"),
+      type: "RENT" as const,
+      categoryId: categoryMap.get("HOUSE")!,
       location: "Prishtina",
       area: 180,
       bedrooms: 3,
@@ -249,8 +249,8 @@ async function main() {
       description: "Modern commercial space for rent in a prime location.",
       price: 1500,
       currency: "€",
-      type: "RENT",
-      categoryId: categoryMap.get("COMMERCIAL"),
+      type: "RENT" as const,
+      categoryId: categoryMap.get("COMMERCIAL")!,
       location: "Prishtina",
       area: 120,
       bedrooms: null,
@@ -274,8 +274,17 @@ async function main() {
   ];
 
   for (const property of properties) {
+    const categoryId = categoryMap.get(property.categoryId);
+    if (!categoryId) {
+      console.error(`Category ID not found for property: ${property.title}`);
+      continue;
+    }
+
     await prisma.property.create({
-      data: property
+      data: {
+        ...property,
+        categoryId
+      }
     });
   }
 
