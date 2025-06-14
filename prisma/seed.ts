@@ -1,8 +1,7 @@
 import { PrismaClient } from '@prisma/client'
-const bcrypt = require('bcryptjs');
+import bcrypt from 'bcryptjs'
 
-const prisma = new PrismaClient();
-const categoryMap = new Map();
+const prisma = new PrismaClient()
 
 async function main() {
   // Clear existing data
@@ -44,16 +43,14 @@ async function main() {
     { id: 'BUILDING', name: 'Ndërtesë', value: 'building' }
   ];
 
+  const categoryMap = new Map<string, string>();
+
   for (const category of categories) {
     const result = await prisma.category.create({
       data: category
     });
     categoryMap.set(category.id, result.id);
   }
-
-  // Get all categories for reference
-  const allCategories = await prisma.category.findMany();
-  const categoryMap = new Map(allCategories.map((c: { value: string; id: string }) => [c.value, c.id]));
 
   // Now create properties with categoryId
   const properties = [
