@@ -92,3 +92,33 @@ body {
     @apply bg-background text-foreground;
   }
 }
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom button styles for navigation */
+.nav-button {
+  @apply relative px-4 py-2 text-sm font-medium transition-all duration-200 ease-in-out;
+}
+
+.nav-button::after {
+  content: "";
+  @apply absolute bottom-0 left-0 w-0 h-0.5 bg-brand-secondary transition-all duration-200 ease-in-out;
+}
+
+.nav-button:hover::after {
+  @apply w-full;
+}
+
+.nav-button.active {
+  @apply text-brand-secondary;
+}
+
+.nav-button.active::after {
+  @apply w-full;
+}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, use } from "react"
 import { Property } from "@/lib/types"
 import PropertyDetails from "@/components/property-details"
 import Header from "@/components/header"
@@ -18,7 +18,8 @@ type PropertyWithUser = Property & {
   address?: string
 }
 
-export default function PropertyPage({ params }: { params: { id: string } }) {
+export default function PropertyPage({ params: promisedParams }: { params: Promise<{ id: string }> }) {
+  const params = use(promisedParams);
   const [property, setProperty] = useState<PropertyWithUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

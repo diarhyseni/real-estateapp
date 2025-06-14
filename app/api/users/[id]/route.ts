@@ -1,8 +1,12 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import bcrypt from 'bcryptjs'
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params: promisedParams }: { params: Promise<{ id: string }> }
+) {
+  const params = await promisedParams;
   const user = await prisma.user.findUnique({
     where: { id: params.id },
     select: { 
@@ -20,9 +24,13 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   return NextResponse.json(user)
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: NextRequest,
+  { params: promisedParams }: { params: Promise<{ id: string }> }
+) {
+  const params = await promisedParams;
   try {
-    const { name, email, role, password, image, phone, address } = await req.json()
+    const { name, email, role, password, image, phone, address } = await request.json()
     let data: any = { name, email, role, image, phone, address }
     if (password) {
       data.password = await bcrypt.hash(password, 10)
@@ -47,7 +55,11 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params: promisedParams }: { params: Promise<{ id: string }> }
+) {
+  const params = await promisedParams;
   try {
     await prisma.user.delete({ where: { id: params.id } })
     return NextResponse.json({ success: true })

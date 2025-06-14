@@ -38,27 +38,48 @@ export async function getProperties(params: {
     console.log('Fetching properties from:', url)
     console.log('Request params:', params)
 
-    const response = await fetch(url, {
-      cache: 'no-store',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }))
-      console.error('API Error:', {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorData,
-        url: url
+    try {
+      const response = await fetch(url, {
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       })
-      throw new Error(`Failed to fetch properties: ${response.status} ${response.statusText}`)
-    }
+      
+      if (!response.ok) {
+        let errorData
+        try {
+          errorData = await response.json()
+        } catch (e) {
+          errorData = { error: 'Failed to parse error response' }
+        }
+        
+        console.error('API Error:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+          url: url
+        })
 
-    const data = await response.json()
-    console.log(`Received ${data.length} properties`)
-    return data
+        // If we have detailed error information from the server, use it
+        if (errorData && errorData.details) {
+          throw new Error(`Failed to fetch properties: ${errorData.details}`)
+        }
+        
+        throw new Error(`Failed to fetch properties: ${response.status} ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      console.log(`Received ${data.length} properties`)
+      return data
+    } catch (fetchError) {
+      console.error('Fetch error:', {
+        error: fetchError,
+        message: fetchError instanceof Error ? fetchError.message : 'Unknown error',
+        stack: fetchError instanceof Error ? fetchError.stack : undefined
+      })
+      throw fetchError
+    }
   } catch (error) {
     console.error('Error in getProperties:', error)
     throw error

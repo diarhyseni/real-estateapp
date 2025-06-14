@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/server/db'
+import { NextRequest } from 'next/server'
 
 // DELETE property
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params: promisedParams }: { params: Promise<{ id: string }> }
 ) {
+  const params = await promisedParams;
   try {
     await prisma.property.delete({
       where: { id: params.id }
@@ -22,9 +24,10 @@ export async function DELETE(
 
 // UPDATE property
 export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params: promisedParams }: { params: Promise<{ id: string }> }
 ) {
+  const params = await promisedParams;
   try {
     const body = await request.json();
     // Validate required fields
@@ -85,7 +88,11 @@ export async function PUT(
   }
 }
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params: promisedParams }: { params: Promise<{ id: string }> }
+) {
+  const params = await promisedParams;
   const { id } = params;
   if (!id) {
     return NextResponse.json({ error: "Missing property ID" }, { status: 400 });

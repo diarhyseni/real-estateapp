@@ -1,7 +1,7 @@
 "use client"
 
 import { notFound } from "next/navigation"
-import { useEffect, useState, useMemo, useCallback } from "react"
+import { useEffect, useState, useMemo, useCallback, use } from "react"
 import React from "react"
 import PropertyCard from "@/components/property-card"
 import Header from "@/components/header"
@@ -29,7 +29,8 @@ function LoadingSpinner() {
   )
 }
 
-export default function CategoryPage({ params }: { params: { slug: string } }) {
+export default function CategoryPage({ params: promisedParams }: { params: Promise<{ slug: string }> }) {
+  const params = use(promisedParams);
   const [properties, setProperties] = useState<Property[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
