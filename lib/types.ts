@@ -24,6 +24,7 @@ export interface Property {
   features: string[];
   location: string;
   address: string;
+  city: string;
   bedrooms: number;
   bathrooms: number;
   area: number;
