@@ -42,6 +42,7 @@ export interface Property {
   hasInternet: boolean;
   hasElevator: boolean;
   statuses: string[];
+  isExclusive: boolean;
   createdAt: Date;
   updatedAt: Date;
   userId: string;
