@@ -15,9 +15,15 @@ async function main() {
       hasAirConditioning: true,
       hasHeating: true,
       hasElevator: true,
-      hasParking: true,
+      parking: 2,
       description: "Zyre moderne në qendër të Prishtinës, me pamje nga qyteti dhe të gjitha komoditetet e nevojshme.",
-      city: "Prishtinë"
+      city: "Prishtinë",
+      type: "SALE",
+      currency: "€",
+      areaUnit: "m2",
+      characteristics: ["modern", "central"],
+      nearbyPlaces: ["city center"],
+      statuses: ["active"]
     }
   })
 
@@ -31,7 +37,13 @@ async function main() {
       area: 500,
       images: ["https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2032&auto=format&fit=crop"],
       description: "Trokë e madhe në Zhur, me qasje të lehtë dhe mundësi për ndërtim.",
-      city: "Prishtinë"
+      city: "Prishtinë",
+      type: "SALE",
+      currency: "€",
+      areaUnit: "m2",
+      characteristics: ["land", "development"],
+      nearbyPlaces: ["developing area"],
+      statuses: ["active"]
     }
   })
 
@@ -45,9 +57,15 @@ async function main() {
       area: 800,
       images: ["https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop"],
       hasHeating: true,
-      hasParking: true,
+      parking: 5,
       description: "Depo i madh në zonën industriale, ideal për ruajtje dhe logjistikë.",
-      city: "Prishtinë"
+      city: "Prishtinë",
+      type: "RENT",
+      currency: "€",
+      areaUnit: "m2",
+      characteristics: ["warehouse", "industrial"],
+      nearbyPlaces: ["industrial zone"],
+      statuses: ["active"]
     }
   })
 
@@ -65,11 +83,17 @@ async function main() {
       hasAirConditioning: true,
       hasHeating: true,
       hasElevator: true,
-      hasParking: true,
+      parking: 2,
       hasBalcony: true,
-      isFurnished: true,
       description: "Banesë luksoze në qendër të qytetit, me pamje spektakolare dhe të gjitha komoditetet.",
-      city: "Prishtinë"
+      city: "Prishtinë",
+      type: "SALE",
+      currency: "€",
+      areaUnit: "m2",
+      characteristics: ["luxury", "central"],
+      nearbyPlaces: ["city center"],
+      statuses: ["active"],
+      isExclusive: true
     }
   })
 
@@ -84,9 +108,15 @@ async function main() {
       images: ["https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2053&auto=format&fit=crop"],
       hasAirConditioning: true,
       hasHeating: true,
-      hasParking: true,
+      parking: 3,
       description: "Lokal komercial në qendër të qytetit, ideal për biznes.",
-      city: "Prishtinë"
+      city: "Prishtinë",
+      type: "RENT",
+      currency: "€",
+      areaUnit: "m2",
+      characteristics: ["commercial", "central"],
+      nearbyPlaces: ["city center"],
+      statuses: ["active"]
     }
   })
 
@@ -102,9 +132,16 @@ async function main() {
       hasAirConditioning: true,
       hasHeating: true,
       hasElevator: true,
-      hasParking: true,
+      parking: 10,
       description: "Objekt i madh në qendër të qytetit, me mundësi për zhvillim të ndryshëm.",
-      city: "Prishtinë"
+      city: "Prishtinë",
+      type: "SALE",
+      currency: "€",
+      areaUnit: "m2",
+      characteristics: ["building", "central"],
+      nearbyPlaces: ["city center"],
+      statuses: ["active"],
+      isExclusive: true
     }
   })
 
@@ -121,11 +158,16 @@ async function main() {
       images: ["https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=2070&auto=format&fit=crop"],
       hasAirConditioning: true,
       hasHeating: true,
-      hasParking: true,
+      parking: 2,
       hasBalcony: true,
-      isFurnished: true,
       description: "Shtëpi familjare e bukur në Dardani, me kopsht të madh dhe të gjitha komoditetet.",
-      city: "Prishtinë"
+      city: "Prishtinë",
+      type: "RENT",
+      currency: "€",
+      areaUnit: "m2",
+      characteristics: ["house", "family"],
+      nearbyPlaces: ["school"],
+      statuses: ["active"]
     }
   })
 
