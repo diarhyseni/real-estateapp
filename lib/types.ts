@@ -23,6 +23,7 @@ export interface Property {
   category: Category;
   images: string[];
   features: string[];
+  characteristics: string[];
   location: string;
   address: string;
   city: string;
