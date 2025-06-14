@@ -1,23 +1,19 @@
-const { PrismaClient } = require('@prisma/client')
+import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-async function main() {
+async function listProperties() {
   const properties = await prisma.property.findMany({
-    where: {
-      category: {
-        in: ['HOUSE', 'APARTMENT']
-      }
+    include: {
+      category: true,
+      user: true
     }
   })
-  console.log('Properties with category HOUSE or APARTMENT:', properties)
+  console.log('Properties:', JSON.stringify(properties, null, 2))
 }
 
-main()
-  .catch((e) => {
-    console.error(e)
-    process.exit(1)
-  })
+listProperties()
+  .catch(console.error)
   .finally(async () => {
     await prisma.$disconnect()
   }) 
