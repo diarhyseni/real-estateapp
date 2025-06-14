@@ -1,4 +1,4 @@
-async function main() {
+async function checkApi() {
   const categories = ['HOUSE', 'APARTMENT']
   for (const category of categories) {
     const response = await fetch(`http://localhost:3000/api/properties?category=${category}`)
@@ -7,4 +7,4 @@ async function main() {
   }
 }
 
-main().catch(console.error) 
+checkApi().catch(console.error) 
