@@ -45,6 +45,7 @@ export interface Property {
   statuses: string[];
   isExclusive: boolean;
   googleMapsIframe: string;
+  nearbyPlaces: string[];
   createdAt: Date;
   updatedAt: Date;
   userId: string;
