@@ -35,6 +35,7 @@ export interface Property {
   hasGarden: boolean;
   hasPool: boolean;
   hasSecurity: boolean;
+  hasGym: boolean;
   hasAirConditioning: boolean;
   hasHeating: boolean;
   hasInternet: boolean;
