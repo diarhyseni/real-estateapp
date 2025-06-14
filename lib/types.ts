@@ -30,6 +30,14 @@ export interface Property {
   area: number;
   areaUnit: string;
   parking: number;
+  hasBalcony: boolean;
+  hasGarden: boolean;
+  hasPool: boolean;
+  hasSecurity: boolean;
+  hasAirConditioning: boolean;
+  hasHeating: boolean;
+  hasInternet: boolean;
+  hasElevator: boolean;
   createdAt: Date;
   updatedAt: Date;
   userId: string;
