@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Property } from "@/lib/types"
 import { getProperties } from "@/lib/actions"
 import PropertyTable from "@/components/admin/property-table"

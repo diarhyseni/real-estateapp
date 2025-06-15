@@ -38,50 +38,31 @@ export async function getProperties(params: {
     console.log('Fetching properties from:', url)
     console.log('Request params:', params)
 
-    try {
-      const response = await fetch(url, {
-        cache: 'no-store',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+    const response = await fetch(url, {
+      cache: 'no-store',
+      next: { revalidate: 0 },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
       
-      if (!response.ok) {
-        let errorData
-        try {
-          errorData = await response.json()
-        } catch (e) {
-          errorData = { error: 'Failed to parse error response' }
-        }
-        
-        console.error('API Error:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-          url: url
-        })
-
-        // If we have detailed error information from the server, use it
-        if (errorData && errorData.details) {
-          throw new Error(`Failed to fetch properties: ${errorData.details}`)
-        }
-        
-        throw new Error(`Failed to fetch properties: ${response.status} ${response.statusText}`)
-      }
-
-      const data = await response.json()
-      console.log(`Received ${data.length} properties`)
-      return data
-    } catch (fetchError) {
-      console.error('Fetch error:', {
-        error: fetchError,
-        message: fetchError instanceof Error ? fetchError.message : 'Unknown error',
-        stack: fetchError instanceof Error ? fetchError.stack : undefined
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText,
+        url: url
       })
-      throw fetchError
+      throw new Error(`Failed to fetch properties: ${response.status} ${response.statusText}`)
     }
+
+    const data = await response.json()
+    console.log(`Received ${data.length} properties`)
+    return data
   } catch (error) {
     console.error('Error in getProperties:', error)
-    throw error
+    // Return empty array instead of throwing to prevent page crashes
+    return []
   }
 } 
