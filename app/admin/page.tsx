@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+ export const dynamic = "force-dynamic";
 
 import { Property } from "@/lib/types"
 import { getProperties } from "@/lib/actions"

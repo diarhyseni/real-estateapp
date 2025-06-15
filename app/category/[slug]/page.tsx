@@ -1,15 +1,13 @@
 "use client"
 
-import { notFound } from "next/navigation"
+export const dynamic = "force-dynamic"
+
 import { useEffect, useState, useMemo, useCallback, use } from "react"
-import React from "react"
 import PropertyCard from "@/components/property-card"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { Property } from "@/lib/types"
 import PropertyFilters from "@/components/property-filters"
-import { Suspense } from "react"
-import { Loader2, Search } from "lucide-react"
 
 function PropertyList({ properties }: { properties: Property[] }) {
   return (
@@ -23,7 +21,7 @@ function PropertyList({ properties }: { properties: Property[] }) {
 
 function LoadingSpinner() {
   return (
-    <div className="flex items-center justify-center py-24">
+    <div className="flex items-center justify-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
     </div>
   )
@@ -32,100 +30,145 @@ function LoadingSpinner() {
 export default function CategoryPage({ params: promisedParams }: { params: Promise<{ slug: string }> }) {
   const params = use(promisedParams);
   const [properties, setProperties] = useState<Property[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState("")
-
-  const fetchProperties = async (filters?: any) => {
-    try {
-      setIsLoading(true)
-      setError(null)
-      
-      const queryParams = new URLSearchParams({
-        category: params.slug.toUpperCase(),
-        ...filters
-      })
-
-      const response = await fetch(`/api/properties/category?${queryParams}`)
-      if (!response.ok) throw new Error('Failed to fetch properties')
-      
-      const data = await response.json()
-      setProperties(data)
-    } catch (error) {
-      console.error('Error fetching properties:', error)
-      setError('Failed to load properties')
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([])
+  const [loading, setLoading] = useState(true)
+  const memoizedProperties = useMemo(() => properties, [properties])
 
   useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+        // First, fetch the category by value (slug)
+        const catRes = await fetch(`${baseUrl}/api/categories?value=${params.slug}`);
+        const catData = await catRes.json();
+        const category = Array.isArray(catData) ? catData[0] : catData;
+        console.log('Fetched category:', category);
+        if (!category || !category.id) {
+          setProperties([]);
+          setFilteredProperties([]);
+          setLoading(false);
+          return;
+        }
+        // Now fetch properties by categoryId
+        const response = await fetch(`${baseUrl}/api/properties?category=${category.id}`)
+        const data = await response.json()
+        console.log('Fetched properties:', data);
+        if (!response.ok) {
+          throw new Error('Failed to fetch properties')
+        }
+        setProperties(data)
+        setFilteredProperties(data)
+      } catch (error) {
+        console.error('Error fetching properties:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
     fetchProperties()
   }, [params.slug])
 
-  const memoizedProperties = useMemo(() => {
-    let filtered = properties
+  const handleFilterChange = useCallback((filters: any) => {
+    let filtered = [...properties]
 
-    if (searchQuery) {
-      const searchLower = searchQuery.toLowerCase()
-      filtered = filtered.filter(property =>
-        (property.title && property.title.toLowerCase().includes(searchLower)) ||
-        (property.location && property.location.toLowerCase().includes(searchLower))
+    // Filter by price range
+    if (filters.priceRange) {
+      filtered = filtered.filter(property => 
+        property.price >= filters.priceRange[0] && 
+        property.price <= filters.priceRange[1]
       )
     }
 
-    return filtered
-  }, [properties, searchQuery])
+    // Filter by bedrooms
+    if (filters.bedrooms && filters.bedrooms !== 'any') {
+      if (filters.bedrooms.endsWith('+')) {
+        const minBedrooms = parseInt(filters.bedrooms)
+        filtered = filtered.filter(property => (property.bedrooms || 0) >= minBedrooms)
+      } else {
+        filtered = filtered.filter(property => (property.bedrooms || 0) === parseInt(filters.bedrooms))
+      }
+    }
 
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-red-500">{error}</p>
-      </div>
-    )
-  }
+    // Filter by bathrooms
+    if (filters.bathrooms && filters.bathrooms !== 'any') {
+      if (filters.bathrooms.endsWith('+')) {
+        const minBathrooms = parseInt(filters.bathrooms)
+        filtered = filtered.filter(property => (property.bathrooms || 0) >= minBathrooms)
+      } else {
+        filtered = filtered.filter(property => (property.bathrooms || 0) === parseInt(filters.bathrooms))
+      }
+    }
+
+    // Strict area filter: always apply if either minArea or maxArea is set
+    const minArea = (typeof filters.minArea === 'number' && !isNaN(filters.minArea)) ? filters.minArea : 0;
+    const maxArea = (typeof filters.maxArea === 'number' && !isNaN(filters.maxArea)) ? filters.maxArea : Infinity;
+    filtered = filtered.filter(property => {
+      if (property.area === undefined || property.area === null) return false;
+      let areaInM2 = Number(property.area);
+      if (isNaN(areaInM2)) return false;
+      if (property.areaUnit) {
+        const unit = property.areaUnit.toLowerCase().replace(/\s|\./g, '');
+        if (unit === 'ari') areaInM2 = areaInM2 * 100;
+        if (unit === 'hektar' || unit === 'hektare' || unit === 'ha') areaInM2 = areaInM2 * 10000;
+      }
+      return areaInM2 >= minArea && areaInM2 <= maxArea;
+    });
+
+    // Filter by features
+    if (filters.hasBalcony) filtered = filtered.filter(p => p.hasBalcony)
+    if (filters.hasParking) filtered = filtered.filter(p => p.hasParking)
+    if (filters.hasGarden) filtered = filtered.filter(p => p.hasGarden)
+    if (filters.hasPool) filtered = filtered.filter(p => p.hasPool)
+    if (filters.hasSecurity) filtered = filtered.filter(p => p.hasSecurity)
+    if (filters.hasGym) filtered = filtered.filter(p => p.hasGym)
+    if (filters.hasElevator) filtered = filtered.filter(p => p.hasElevator)
+    if (filters.hasAirConditioning) filtered = filtered.filter(p => p.hasAirConditioning)
+    if (filters.hasHeating) filtered = filtered.filter(p => p.hasHeating)
+    if (filters.hasInternet) filtered = filtered.filter(p => p.hasInternet)
+
+    // Filter by city
+    if (filters.city) {
+      filtered = filtered.filter(property => property.city === filters.city);
+    }
+
+    // Filter by search
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      filtered = filtered.filter(property =>
+        (property.title && property.title.toLowerCase().includes(searchLower)) ||
+        (property.address && property.address.toLowerCase().includes(searchLower))
+      );
+    }
+
+    setFilteredProperties(filtered)
+  }, [properties])
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex flex-col md:flex-row gap-8">
-        <main className="flex-1">
-          <div className="mb-6">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <input
-                type="text"
-                placeholder="Search properties..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      <main className="flex-1 container py-8">
+        <h1 className="text-3xl font-bold mb-8">{params.slug}</h1>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="md:col-span-1">
+            <PropertyFilters 
+              onFilterChange={handleFilterChange}
+              properties={memoizedProperties}
+            />
           </div>
-
-          {isLoading ? (
-            <div className="flex items-center justify-center min-h-[400px]">
-              <Loader2 className="h-8 w-8 animate-spin" />
-            </div>
-          ) : memoizedProperties.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500">No properties found</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {memoizedProperties.map((property) => (
-                <PropertyCard key={property.id} property={property} />
-              ))}
-            </div>
-          )}
-        </main>
-
-        <aside className="w-full md:w-80">
-          <PropertyFilters
-            onFilterChange={fetchProperties}
-            properties={memoizedProperties}
-          />
-        </aside>
-      </div>
+          <div className="md:col-span-3">
+            {loading ? (
+              <LoadingSpinner />
+            ) : filteredProperties.length > 0 ? (
+              <PropertyList properties={filteredProperties} />
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-gray-500">Për momentin nuk ka prona në këtë kategori. Ju lutem kontrolloni sërish më vonë!</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   )
 }
