@@ -32,7 +32,7 @@ export async function getProperties(params: {
     }
 
     // Get the base URL for the API
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
     const url = `${baseUrl}/api/properties?${searchParams.toString()}`
     
     console.log('Fetching properties from:', url)

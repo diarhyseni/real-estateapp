@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 "use client"
 
 import { useEffect, useState, useMemo } from "react"
@@ -15,15 +17,13 @@ export default function OfficePage() {
     try {
       setIsLoading(true)
       setError(null)
-      
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
       const queryParams = new URLSearchParams({
         category: "OFFICE",
         ...filters
       })
-
-      const response = await fetch(`/api/properties/category?${queryParams}`)
+      const response = await fetch(`${baseUrl}/api/properties/category?${queryParams}`)
       if (!response.ok) throw new Error('Failed to fetch properties')
-      
       const data = await response.json()
       setProperties(data)
     } catch (error) {

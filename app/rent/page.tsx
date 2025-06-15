@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 "use client"
 
 import { useEffect, useState, useCallback, useMemo } from "react"
@@ -35,7 +37,8 @@ export default function RentPage() {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const response = await fetch('/api/properties?status=RENT')
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+        const response = await fetch(`${baseUrl}/api/properties?status=RENT`)
         if (!response.ok) {
           throw new Error('Failed to fetch properties')
         }

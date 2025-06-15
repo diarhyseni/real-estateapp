@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 "use client"
 
 import { useEffect, useState, useMemo, useCallback } from "react"
@@ -34,7 +36,8 @@ export default function SalePage() {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const response = await fetch('/api/properties?status=SALE')
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+        const response = await fetch(`${baseUrl}/api/properties?status=SALE`)
         if (!response.ok) {
           throw new Error('Failed to fetch properties')
         }

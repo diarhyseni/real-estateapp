@@ -53,8 +53,10 @@ const categoryImages: Record<string, { name: string; url: string; image: string 
   },
 }
 
+export const dynamic = "force-dynamic";
+
 async function getCategoriesWithCounts() {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
   const res = await fetch(`${baseUrl}/api/categories`, { cache: 'no-store' })
   if (!res.ok) return []
   const data = await res.json()

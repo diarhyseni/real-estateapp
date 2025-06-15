@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
@@ -11,33 +13,24 @@ export default function WarehousePage() {
   const [properties, setProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
   const memoizedProperties = useMemo(() => properties, [properties])
+  const [error, setError] = useState<string | null>(null)
 
-  const fetchProperties = async (filters: any) => {
-    setLoading(true)
+  const fetchProperties = async (filters?: any) => {
     try {
-      const searchParams = new URLSearchParams()
-      searchParams.set('category', 'WAREHOUSE')
-      
-      if (filters.priceRange) {
-        searchParams.set('priceMin', filters.priceRange[0])
-        searchParams.set('priceMax', filters.priceRange[1])
-      }
-      if (filters.bedrooms !== 'any') searchParams.set('bedrooms', filters.bedrooms)
-      if (filters.bathrooms !== 'any') searchParams.set('bathrooms', filters.bathrooms)
-      if (filters.area !== 'any') searchParams.set('area', filters.area)
-      
-      // Add feature filters
-      Object.entries(filters).forEach(([key, value]) => {
-        if (key.startsWith('has') && value === true) {
-          searchParams.set(key, 'true')
-        }
+      setLoading(true)
+      setError(null)
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+      const queryParams = new URLSearchParams({
+        category: "WAREHOUSE",
+        ...filters
       })
-
-      const response = await fetch(`/api/properties?${searchParams.toString()}`)
+      const response = await fetch(`${baseUrl}/api/properties/category?${queryParams}`)
+      if (!response.ok) throw new Error('Failed to fetch properties')
       const data = await response.json()
       setProperties(data)
     } catch (error) {
       console.error('Error fetching properties:', error)
+      setError('Failed to load properties')
     } finally {
       setLoading(false)
     }
