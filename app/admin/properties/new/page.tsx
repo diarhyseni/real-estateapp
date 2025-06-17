@@ -75,10 +75,19 @@ export default function NewPropertyPage() {
 
   // Add handler for select changes
   const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
+    setFormData(prev => {
+      if (name === 'type') {
+        return {
+          ...prev,
+          [name]: value,
+          isExclusive: value === 'EXCLUSIVE',
+        }
+      }
+      return {
+        ...prev,
+        [name]: value
+      }
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

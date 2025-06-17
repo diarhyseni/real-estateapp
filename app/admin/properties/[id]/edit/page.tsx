@@ -11,11 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, Upload, X, Plus, Loader2 } from "lucide-react"
+import { ArrowLeft, Upload, X, Plus, Loader2, AlertCircle } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "@/components/ui/use-toast"
 import { MultiSelect } from "@/components/ui/multiselect"
 import { cn, formatPrice } from "@/lib/utils"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 function RequiredLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -74,6 +75,18 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   const [types, setTypes] = useState<{id: string, name: string, value: string}[]>([])
   const [selectedType, setSelectedType] = useState<string>("")
   const [statuses, setStatuses] = useState<string[]>([])
+  const [activeTab, setActiveTab] = useState("details")
+  const [errors, setErrors] = useState<{
+    details: string[];
+    features: string[];
+    images: string[];
+    location: string[];
+  }>({
+    details: [],
+    features: [],
+    images: [],
+    location: [],
+  })
 
   React.useEffect(() => {
     fetch('/api/categories')
@@ -209,10 +222,19 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   }
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
+    setFormData(prev => {
+      if (name === 'type') {
+        return {
+          ...prev,
+          [name]: value,
+          isExclusive: value === 'EXCLUSIVE',
+        }
+      }
+      return {
+        ...prev,
+        [name]: value
+      }
+    })
     if (name === 'categoryId') setSelectedCategory(value)
   }
 
@@ -326,8 +348,81 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
     setNearbyPlaces(newNearbyPlaces)
   }
 
+  const validateTab = (tab: string) => {
+    const newErrors: string[] = []
+
+    switch (tab) {
+      case "details":
+        if (!formData.title) newErrors.push("Titulli është i detyrueshëm")
+        if (!formData.price) newErrors.push("Çmimi është i detyrueshëm")
+        if (!formData.area) newErrors.push("Sipërfaqja është e detyrueshme")
+        if (!formData.location) newErrors.push("Lokacioni është i detyrueshëm")
+        if (!formData.description) newErrors.push("Përshkrimi është i detyrueshëm")
+        if (!selectedCategory) newErrors.push("Kategoria është e detyrueshme")
+        if (statuses.length === 0) newErrors.push("Të paktën një lloj (Me qira ose Në shitje) është i detyrueshëm")
+        break
+      case "features":
+        // Not required
+        break
+      case "images":
+        if (images.length === 0) {
+          newErrors.push("Të paktën një imazh është i detyrueshëm")
+        }
+        break
+      case "location":
+        if (!formData.address) newErrors.push("Adresa është e detyrueshme")
+        if (!formData.city) newErrors.push("Qyteti është i detyrueshëm")
+        break
+    }
+
+    setErrors(prev => ({ ...prev, [tab]: newErrors }))
+    return newErrors.length === 0
+  }
+
+  const handleNextTab = () => {
+    const isValid = validateTab(activeTab)
+    if (!isValid) {
+      toast({
+        title: "Gabim!",
+        description: "Ju lutem plotësoni të gjitha fushat e detyrueshme.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    switch (activeTab) {
+      case "details":
+        setActiveTab("features")
+        break
+      case "features":
+        setActiveTab("images")
+        break
+      case "images":
+        setActiveTab("location")
+        break
+      default:
+        break
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Validate all tabs before submission
+    const detailsValid = validateTab("details")
+    const featuresValid = validateTab("features")
+    const imagesValid = validateTab("images")
+    const locationValid = validateTab("location")
+
+    if (!detailsValid || !featuresValid || !imagesValid || !locationValid) {
+      toast({
+        title: "Gabim!",
+        description: "Ju lutem plotësoni të gjitha fushat e detyrueshme në të gjitha seksionet.",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -436,20 +531,61 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   return (
     <div>
       <div className="flex items-center gap-2 mb-6">
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push("/admin")}>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push("/admin/properties")}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <h1 className="text-3xl font-bold">Ndrysho pronën</h1>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <Tabs defaultValue="details" className="mb-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
           <TabsList className="mb-6">
-            <TabsTrigger value="details">Detajet</TabsTrigger>
-            <TabsTrigger value="features">Karakteristikat</TabsTrigger>
-            <TabsTrigger value="images">Imazhet</TabsTrigger>
-            <TabsTrigger value="location">Lokacioni</TabsTrigger>
+            <TabsTrigger value="details" className="relative">
+              Detajet
+              {errors.details.length > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center">
+                  <AlertCircle className="h-3 w-3 text-white" />
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="features" className="relative">
+              Karakteristikat
+              {errors.features.length > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center">
+                  <AlertCircle className="h-3 w-3 text-white" />
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="images" className="relative">
+              Imazhet
+              {errors.images.length > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center">
+                  <AlertCircle className="h-3 w-3 text-white" />
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="location" className="relative">
+              Lokacioni
+              {errors.location.length > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center">
+                  <AlertCircle className="h-3 w-3 text-white" />
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
+
+          {Object.entries(errors).map(([tab, tabErrors]) => (
+            tabErrors.length > 0 && activeTab === tab && (
+              <Alert variant="destructive" className="mb-6" key={tab}>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  {tabErrors.map((error, index) => (
+                    <div key={index}>{error}</div>
+                  ))}
+                </AlertDescription>
+              </Alert>
+            )
+          ))}
 
           <TabsContent value="details">
             <Card>
@@ -548,6 +684,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                         placeholder="Sipërfaqja"
                         required
                         min="0"
+                        step="0.01"
                         className="flex-1"
                       />
                       <Select 
@@ -623,185 +760,201 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                 </div>
               </CardContent>
             </Card>
+            <div className="flex justify-end mt-6">
+              <Button type="button" onClick={handleNextTab}>
+                Faqja tjetër
+              </Button>
+            </div>
           </TabsContent>
 
           <TabsContent value="features">
             <Card>
               <CardContent className="p-6">
-                <div className="space-y-6">
+                <div className="space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <Label>Balcony</Label>
-                      <input
-                        type="checkbox"
-                        id="hasBalcony"
-                        checked={formData.hasBalcony}
-                        onChange={(e) => setFormData({ ...formData, hasBalcony: e.target.checked })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Garden</Label>
-                      <input
-                        type="checkbox"
-                        id="hasGarden"
-                        checked={formData.hasGarden}
-                        onChange={(e) => setFormData({ ...formData, hasGarden: e.target.checked })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Pool</Label>
-                      <input
-                        type="checkbox"
-                        id="hasPool"
-                        checked={formData.hasPool}
-                        onChange={(e) => setFormData({ ...formData, hasPool: e.target.checked })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Security</Label>
-                      <input
-                        type="checkbox"
-                        id="hasSecurity"
-                        checked={formData.hasSecurity}
-                        onChange={(e) => setFormData({ ...formData, hasSecurity: e.target.checked })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Air Conditioning</Label>
-                      <input
-                        type="checkbox"
-                        id="hasAirConditioning"
-                        checked={formData.hasAirConditioning}
-                        onChange={(e) => setFormData({ ...formData, hasAirConditioning: e.target.checked })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Heating</Label>
-                      <input
-                        type="checkbox"
-                        id="hasHeating"
-                        checked={formData.hasHeating}
-                        onChange={(e) => setFormData({ ...formData, hasHeating: e.target.checked })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Internet</Label>
-                      <input
-                        type="checkbox"
-                        id="hasInternet"
-                        checked={formData.hasInternet}
-                        onChange={(e) => setFormData({ ...formData, hasInternet: e.target.checked })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Elevator</Label>
-                      <input
-                        type="checkbox"
-                        id="hasElevator"
-                        checked={formData.hasElevator}
-                        onChange={(e) => setFormData({ ...formData, hasElevator: e.target.checked })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">Karakteristikat</h3>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={addCharacteristic}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Shto karakteristikë
-                      </Button>
-                    </div>
-                    <div className="space-y-4">
-                      {characteristics.map((characteristic, index) => (
-                        <div key={index} className="flex gap-2">
-                          <Input
-                            value={characteristic}
-                            onChange={(e) => updateCharacteristic(index, e.target.value)}
-                            placeholder="Shto karakteristikë"
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeCharacteristic(index)}
-                            disabled={characteristics.length === 1}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">Vendet në afërsi</h3>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={addNearbyPlace}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Shto vend
-                      </Button>
-                    </div>
-                    <div className="space-y-4">
-                      {nearbyPlaces.map((place, index) => (
-                        <div key={index} className="flex gap-2">
-                          <Input
-                            value={place.name}
-                            onChange={(e) => updateNearbyPlace(index, 'name', e.target.value)}
-                            placeholder="Emri i vendit"
-                          />
-                          <div className="relative">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold">Karakteristika shtesë</h3>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={addCharacteristic}
+                          className="h-8"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Shto karakteristikë
+                        </Button>
+                      </div>
+                      <div className="grid gap-3">
+                        {characteristics.map((characteristic, index) => (
+                          <div key={index} className="flex gap-2">
                             <Input
-                              value={place.distance}
-                              onChange={(e) => updateNearbyPlace(index, 'distance', e.target.value)}
-                              placeholder="Distanca"
-                              type="text"
-                              inputMode="numeric"
-                              pattern="[0-9.]*"
+                              value={characteristic}
+                              onChange={(e) => updateCharacteristic(index, e.target.value)}
+                              placeholder="p.sh. Pamje nga deti, Garazh i mbyllur, etj."
+                              className="flex-1"
                             />
-                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">km</span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              onClick={() => removeCharacteristic(index)}
+                              disabled={characteristics.length === 1}
+                              className="h-10 w-10 p-0"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
                           </div>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeNearbyPlace(index)}
-                            disabled={nearbyPlaces.length === 1}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold">Në afërsi</h3>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={addNearbyPlace}
+                          className="h-8"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Shto vend
+                        </Button>
+                      </div>
+                      <div className="grid gap-3">
+                        {nearbyPlaces.map((place, index) => (
+                          <div key={index} className="flex gap-2">
+                            <Input
+                              value={place.name}
+                              onChange={(e) => updateNearbyPlace(index, 'name', e.target.value)}
+                              placeholder="Emri i vendit"
+                              className="flex-1"
+                            />
+                            <div className="relative flex-1">
+                              <Input
+                                value={place.distance}
+                                onChange={(e) => updateNearbyPlace(index, 'distance', e.target.value)}
+                                placeholder="Distanca"
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9.]*"
+                              />
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">km</span>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              onClick={() => removeNearbyPlace(index)}
+                              disabled={nearbyPlaces.length === 1}
+                              className="h-10 w-10 p-0"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Karakteristikat kryesore</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="hasBalcony"
+                          checked={formData.hasBalcony}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, hasBalcony: checked as boolean }))
+                          }
+                        />
+                        <Label htmlFor="hasBalcony">Ballkon</Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="hasGarden"
+                          checked={formData.hasGarden}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, hasGarden: checked as boolean }))
+                          }
+                        />
+                        <Label htmlFor="hasGarden">Kopsht</Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="hasPool"
+                          checked={formData.hasPool}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, hasPool: checked as boolean }))
+                          }
+                        />
+                        <Label htmlFor="hasPool">Pishinë</Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="hasSecurity"
+                          checked={formData.hasSecurity}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, hasSecurity: checked as boolean }))
+                          }
+                        />
+                        <Label htmlFor="hasSecurity">Siguri</Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="hasAirConditioning"
+                          checked={formData.hasAirConditioning}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, hasAirConditioning: checked as boolean }))
+                          }
+                        />
+                        <Label htmlFor="hasAirConditioning">Kondicioner</Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="hasHeating"
+                          checked={formData.hasHeating}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, hasHeating: checked as boolean }))
+                          }
+                        />
+                        <Label htmlFor="hasHeating">Ngrohje</Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="hasInternet"
+                          checked={formData.hasInternet}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, hasInternet: checked as boolean }))
+                          }
+                        />
+                        <Label htmlFor="hasInternet">Internet</Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="hasElevator"
+                          checked={formData.hasElevator}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, hasElevator: checked as boolean }))
+                          }
+                        />
+                        <Label htmlFor="hasElevator">Ashensor</Label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <Button type="button" onClick={handleNextTab}>
+                      Faqja tjetër
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -868,6 +1021,11 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                 </div>
               </CardContent>
             </Card>
+            <div className="flex justify-end mt-6">
+              <Button type="button" onClick={handleNextTab}>
+                Faqja tjetër
+              </Button>
+            </div>
           </TabsContent>
 
           <TabsContent value="location">
@@ -875,18 +1033,19 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="address">Adresa</Label>
+                    <RequiredLabel>Adresa</RequiredLabel>
                     <Input
                       id="address"
                       name="address"
                       placeholder="Adresa e plotë"
                       value={formData.address}
                       onChange={handleInputChange}
+                      required
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="city">Qyteti</Label>
+                    <RequiredLabel>Qyteti</RequiredLabel>
                     <Select
                       name="city"
                       value={formData.city || ''}
@@ -896,44 +1055,43 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                         <SelectValue placeholder="Zgjidh qytetin" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Deçan">Deçan</SelectItem>
-                        <SelectItem value="Dragash">Dragash</SelectItem>
-                        <SelectItem value="Ferizaj">Ferizaj</SelectItem>
-                        <SelectItem value="Fushë Kosovë">Fushë Kosovë</SelectItem>
-                        <SelectItem value="Gjakovë">Gjakovë</SelectItem>
-                        <SelectItem value="Gjilan">Gjilan</SelectItem>
-                        <SelectItem value="Gllogoc">Gllogoc</SelectItem>
-                        <SelectItem value="Graçanicë">Graçanicë</SelectItem>
-                        <SelectItem value="Hani i Elezit">Hani i Elezit</SelectItem>
-                        <SelectItem value="Istog">Istog</SelectItem>
-                        <SelectItem value="Junik">Junik</SelectItem>
-                        <SelectItem value="Kamenicë">Kamenicë</SelectItem>
-                        <SelectItem value="Kaçanik">Kaçanik</SelectItem>
-                        <SelectItem value="Klinë">Klinë</SelectItem>
-                        <SelectItem value="Kllokot">Kllokot</SelectItem>
-                        <SelectItem value="Leposaviq">Leposaviq</SelectItem>
-                        <SelectItem value="Lipjan">Lipjan</SelectItem>
-                        <SelectItem value="Malishevë">Malishevë</SelectItem>
-                        <SelectItem value="Mamushë">Mamushë</SelectItem>
-                        <SelectItem value="Mitrovicë e Jugut">Mitrovicë e Jugut</SelectItem>
-                        <SelectItem value="Mitrovicë e Veriu">Mitrovicë e Veriu</SelectItem>
-                        <SelectItem value="Novobërdë">Novobërdë</SelectItem>
-                        <SelectItem value="Obiliq">Obiliq</SelectItem>
-                        <SelectItem value="Partesh">Partesh</SelectItem>
-                        <SelectItem value="Pejë">Pejë</SelectItem>
-                        <SelectItem value="Podujevë">Podujevë</SelectItem>
                         <SelectItem value="Prishtinë">Prishtinë</SelectItem>
                         <SelectItem value="Prizren">Prizren</SelectItem>
-                        <SelectItem value="Rahovec">Rahovec</SelectItem>
-                        <SelectItem value="Ranillug">Ranillug</SelectItem>
-                        <SelectItem value="Skënderaj">Skënderaj</SelectItem>
-                        <SelectItem value="Suharekë">Suharekë</SelectItem>
-                        <SelectItem value="Shtime">Shtime</SelectItem>
-                        <SelectItem value="Shtërpcë">Shtërpcë</SelectItem>
-                        <SelectItem value="Viti">Viti</SelectItem>
+                        <SelectItem value="Pejë">Pejë</SelectItem>
+                        <SelectItem value="Gjakovë">Gjakovë</SelectItem>
+                        <SelectItem value="Gjilan">Gjilan</SelectItem>
+                        <SelectItem value="Mitrovicë">Mitrovicë</SelectItem>
+                        <SelectItem value="Ferizaj">Ferizaj</SelectItem>
+                        <SelectItem value="Podujevë">Podujevë</SelectItem>
                         <SelectItem value="Vushtrri">Vushtrri</SelectItem>
-                        <SelectItem value="Zubin Potok">Zubin Potok</SelectItem>
+                        <SelectItem value="Suharekë">Suharekë</SelectItem>
+                        <SelectItem value="Rahovec">Rahovec</SelectItem>
+                        <SelectItem value="Drenas">Drenas</SelectItem>
+                        <SelectItem value="Lipjan">Lipjan</SelectItem>
+                        <SelectItem value="Malishevë">Malishevë</SelectItem>
+                        <SelectItem value="Kamenicë">Kamenicë</SelectItem>
+                        <SelectItem value="Viti">Viti</SelectItem>
+                        <SelectItem value="Deçan">Deçan</SelectItem>
+                        <SelectItem value="Istog">Istog</SelectItem>
+                        <SelectItem value="Klinë">Klinë</SelectItem>
+                        <SelectItem value="Skenderaj">Skenderaj</SelectItem>
+                        <SelectItem value="Dragash">Dragash</SelectItem>
+                        <SelectItem value="Fushë Kosovë">Fushë Kosovë</SelectItem>
+                        <SelectItem value="Kaçanik">Kaçanik</SelectItem>
+                        <SelectItem value="Shtime">Shtime</SelectItem>
+                        <SelectItem value="Obiliq">Obiliq</SelectItem>
+                        <SelectItem value="Leposaviq">Leposaviq</SelectItem>
+                        <SelectItem value="Graçanicë">Graçanicë</SelectItem>
+                        <SelectItem value="Han i Elezit">Han i Elezit</SelectItem>
                         <SelectItem value="Zveçan">Zveçan</SelectItem>
+                        <SelectItem value="Shtërpcë">Shtërpcë</SelectItem>
+                        <SelectItem value="Novobërdë">Novobërdë</SelectItem>
+                        <SelectItem value="Zubin Potok">Zubin Potok</SelectItem>
+                        <SelectItem value="Junik">Junik</SelectItem>
+                        <SelectItem value="Mamushë">Mamushë</SelectItem>
+                        <SelectItem value="Ranillug">Ranillug</SelectItem>
+                        <SelectItem value="Kllokot">Kllokot</SelectItem>
+                        <SelectItem value="Partesh">Partesh</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -945,21 +1103,17 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                         id="googleMapsUrl" 
                         name="googleMapsUrl"
                         className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        placeholder="https://www.google.com/maps/embed?pb=..."
+                        placeholder="<iframe src='https://www.google.com/maps/embed?pb=...' width='600' height='450' style='border:0;' allowfullscreen='' loading='lazy' referrerpolicy='no-referrer-when-downgrade'></iframe>"
                         value={googleMapsUrl}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setGoogleMapsUrl(value);
-                          setGoogleMapsIframe(value);
-                        }}
+                        onChange={handleGoogleMapsUrlChange}
                       />
                       <p className="text-sm text-gray-500">
-                        Shkoni në Google Maps → Share → Embed a map → Kopjoni vetëm URL-në (pjesën pas src=)
+                        Shkoni në Google Maps → Share → Embed a map → Kopjoni të gjithë kodin e iframe
                       </p>
                     </div>
                   </div>
 
-                  {googleMapsIframe && googleMapsIframe.includes('google.com/maps') && (
+                  {googleMapsIframe && (
                     <div className="md:col-span-2 w-full aspect-video">
                       <iframe 
                         src={googleMapsIframe}

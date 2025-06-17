@@ -10,10 +10,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, Upload, X, Plus, Loader2 } from "lucide-react"
+import { ArrowLeft, Upload, X, Plus, Loader2, AlertCircle } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "@/components/ui/use-toast"
 import { MultiSelect } from "@/components/ui/multiselect"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 function RequiredLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -66,13 +67,25 @@ export default function AddPropertyPage() {
     city: '',
   })
   const [statuses, setStatuses] = useState<string[]>([])
+  const [activeTab, setActiveTab] = useState("details")
+  const [errors, setErrors] = useState<{
+    details: string[];
+    features: string[];
+    images: string[];
+    location: string[];
+  }>({
+    details: [],
+    features: [],
+    images: [],
+    location: [],
+  })
 
   useEffect(() => {
     fetch('/api/categories')
       .then(res => res.json())
       .then(data => {
         setCategories(data)
-        if (data.length > 0) {
+        if (data.length > 0 && !selectedCategory) {
           setSelectedCategory(data[0].id)
           setFormData(prev => ({ ...prev, category: data[0].id }))
         }
@@ -82,15 +95,19 @@ export default function AddPropertyPage() {
   useEffect(() => {
     fetch('/api/types')
       .then(res => res.json())
-      .then(data => setTypes(data))
+      .then(data => {
+        setTypes(data)
+        if (data.length > 0 && !selectedType) {
+          setSelectedType(data[0].id)
+        }
+      })
   }, [])
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target as HTMLInputElement
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
-    }))
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+    if (name === 'category') setSelectedCategory(value)
+    if (name === 'type') setSelectedType(value)
   }
 
   const handleSelectChange = (name: string, value: string) => {
@@ -101,8 +118,82 @@ export default function AddPropertyPage() {
     if (name === 'category') setSelectedCategory(value)
   }
 
+  const validateTab = (tab: string) => {
+    const newErrors: string[] = []
+
+    switch (tab) {
+      case "details":
+        if (!formData.title) newErrors.push("Titulli është i detyrueshëm")
+        if (!formData.price) newErrors.push("Çmimi është i detyrueshëm")
+        if (!formData.area) newErrors.push("Sipërfaqja është e detyrueshme")
+        if (!formData.location) newErrors.push("Lokacioni është i detyrueshëm")
+        if (!formData.description) newErrors.push("Përshkrimi është i detyrueshëm")
+        if (!selectedCategory) newErrors.push("Kategoria është e detyrueshme")
+        if (!selectedType) newErrors.push("Lloji është i detyrueshëm")
+        if (statuses.length === 0) newErrors.push("Të paktën një lloj (Me qira ose Në shitje) është i detyrueshëm")
+        break
+      case "features":
+        // Remove required validation for characteristics
+        break
+      case "images":
+        if (images.length === 0) {
+          newErrors.push("Të paktën një imazh është i detyrueshëm")
+        }
+        break
+      case "location":
+        if (!formData.address) newErrors.push("Adresa është e detyrueshme")
+        if (!formData.city) newErrors.push("Qyteti është i detyrueshëm")
+        break
+    }
+
+    setErrors(prev => ({ ...prev, [tab]: newErrors }))
+    return newErrors.length === 0
+  }
+
+  const handleNextTab = () => {
+    const isValid = validateTab(activeTab)
+    if (!isValid) {
+      toast({
+        title: "Gabim!",
+        description: "Ju lutem plotësoni të gjitha fushat e detyrueshme.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    switch (activeTab) {
+      case "details":
+        setActiveTab("features")
+        break
+      case "features":
+        setActiveTab("images")
+        break
+      case "images":
+        setActiveTab("location")
+        break
+      default:
+        break
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Validate all tabs before submission
+    const detailsValid = validateTab("details")
+    const featuresValid = validateTab("features")
+    const imagesValid = validateTab("images")
+    const locationValid = validateTab("location")
+
+    if (!detailsValid || !featuresValid || !imagesValid || !locationValid) {
+      toast({
+        title: "Gabim!",
+        description: "Ju lutem plotësoni të gjitha fushat e detyrueshme në të gjitha seksionet.",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -356,189 +447,235 @@ export default function AddPropertyPage() {
   return (
     <div>
       <div className="flex items-center gap-2 mb-6">
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push("/admin")}>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push("/admin/properties")}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <h1 className="text-3xl font-bold">Shto pronë të re</h1>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <Tabs defaultValue="details" className="mb-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
           <TabsList className="mb-6">
-            <TabsTrigger value="details">Detajet</TabsTrigger>
-            <TabsTrigger value="features">Karakteristikat</TabsTrigger>
-            <TabsTrigger value="images">Imazhet</TabsTrigger>
-            <TabsTrigger value="location">Lokacioni</TabsTrigger>
+            <TabsTrigger value="details" className="relative">
+              Detajet
+              {errors.details.length > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center">
+                  <AlertCircle className="h-3 w-3 text-white" />
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="features" className="relative">
+              Karakteristikat
+              {errors.features.length > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center">
+                  <AlertCircle className="h-3 w-3 text-white" />
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="images" className="relative">
+              Imazhet
+              {errors.images.length > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center">
+                  <AlertCircle className="h-3 w-3 text-white" />
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="location" className="relative">
+              Lokacioni
+              {errors.location.length > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center">
+                  <AlertCircle className="h-3 w-3 text-white" />
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
+
+          {Object.entries(errors).map(([tab, tabErrors]) => (
+            tabErrors.length > 0 && activeTab === tab && (
+              <Alert variant="destructive" className="mb-6" key={tab}>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  {tabErrors.map((error, index) => (
+                    <div key={index}>{error}</div>
+                  ))}
+                </AlertDescription>
+              </Alert>
+            )
+          ))}
 
           <TabsContent value="details">
             <Card>
-              <CardContent className="p-6">
-                <div className="space-y-6">
+              <CardContent className="p-6 space-y-6">
+                <div className="space-y-2">
+                  <RequiredLabel>Titulli</RequiredLabel>
+                  <Input 
+                    id="title" 
+                    name="title" 
+                    value={formData.title}
+                    onChange={handleInputChange}
+                    placeholder="Shto titullin e pronës" 
+                    required 
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <RequiredLabel>Vendndodhja</RequiredLabel>
+                  <Input 
+                    id="location" 
+                    name="location" 
+                    value={formData.location}
+                    onChange={handleInputChange}
+                    placeholder="Adresa e pronës" 
+                    required 
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <RequiredLabel>Titulli</RequiredLabel>
-                    <Input 
-                      id="title" 
-                      name="title" 
-                      value={formData.title}
+                    <RequiredLabel>Çmimi</RequiredLabel>
+                    <Input
+                      id="price"
+                      name="price"
+                      type="text"
+                      value={formData.price}
                       onChange={handleInputChange}
-                      placeholder="Shto titullin e pronës" 
-                      required 
+                      placeholder="Çmimi"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="currency">Monedha</Label>
+                    <Input
+                      id="currency"
+                      name="currency"
+                      value="€"
+                      readOnly
+                      className="bg-muted"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <RequiredLabel>Lloji</RequiredLabel>
+                    <MultiSelect
+                      options={Array.isArray(types) ? types.map(type => ({ value: type.value, label: type.name })) : []}
+                      value={statuses}
+                      onChange={setStatuses}
+                      placeholder="Zgjidh llojin"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <RequiredLabel>Kategoria</RequiredLabel>
+                    <Select 
+                      value={selectedCategory} 
+                      onValueChange={value => {
+                        setSelectedCategory(value)
+                        setFormData(prev => ({ ...prev, category: value }))
+                      }}
+                    >
+                      <SelectTrigger id="category">
+                        <SelectValue placeholder="Zgjidhni kategorinë" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map(category => (
+                          <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <RequiredLabel>Sipërfaqja</RequiredLabel>
+                  <div className="flex gap-2">
+                    <Input
+                      id="area"
+                      name="area"
+                      type="number"
+                      value={formData.area}
+                      onChange={handleInputChange}
+                      placeholder="Sipërfaqja"
+                      required
+                      min="0"
+                      step="0.01"
+                      className="flex-1"
+                    />
+                    <Select 
+                      value={formData.areaUnit} 
+                      onValueChange={(value) => handleSelectChange('areaUnit', value)}
+                    >
+                      <SelectTrigger className="w-[120px]">
+                        <SelectValue placeholder="Njësia" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="m2">m²</SelectItem>
+                        <SelectItem value="km2">km²</SelectItem>
+                        <SelectItem value="hektar">Hektar</SelectItem>
+                        <SelectItem value="ari">Ari</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="bedrooms">Dhoma gjumi</Label>
+                    <Input
+                      id="bedrooms"
+                      name="bedrooms"
+                      type="number"
+                      value={formData.bedrooms}
+                      onChange={handleInputChange}
+                      placeholder="Numri i dhomave"
+                      min="0"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <RequiredLabel>Vendndodhja</RequiredLabel>
-                    <Input 
-                      id="location" 
-                      name="location" 
-                      value={formData.location}
+                    <Label htmlFor="bathrooms">Banjo</Label>
+                    <Input
+                      id="bathrooms"
+                      name="bathrooms"
+                      type="number"
+                      value={formData.bathrooms}
                       onChange={handleInputChange}
-                      placeholder="Adresa e pronës" 
-                      required 
+                      placeholder="Numri i banjove"
+                      min="0"
                     />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <RequiredLabel>Çmimi</RequiredLabel>
-                      <Input
-                        id="price"
-                        name="price"
-                        type="text"
-                        value={formData.price}
-                        onChange={handleInputChange}
-                        placeholder="Çmimi"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="currency">Monedha</Label>
-                      <Input
-                        id="currency"
-                        name="currency"
-                        value="€"
-                        readOnly
-                        className="bg-muted"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <RequiredLabel>Lloji</RequiredLabel>
-                      <MultiSelect
-                        options={Array.isArray(types) ? types.map(type => ({ value: type.value, label: type.name })) : []}
-                        value={statuses}
-                        onChange={setStatuses}
-                        placeholder="Zgjidh llojin"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <RequiredLabel>Kategoria</RequiredLabel>
-                      <Select 
-                        value={selectedCategory} 
-                        onValueChange={value => {
-                          setSelectedCategory(value)
-                          setFormData(prev => ({ ...prev, category: value }))
-                        }}
-                      >
-                        <SelectTrigger id="category">
-                          <SelectValue placeholder="Zgjidhni kategorinë" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map(category => (
-                            <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
                   </div>
 
                   <div className="space-y-2">
-                    <RequiredLabel>Sipërfaqja</RequiredLabel>
-                    <div className="flex gap-2">
-                      <Input
-                        id="area"
-                        name="area"
-                        type="number"
-                        value={formData.area}
-                        onChange={handleInputChange}
-                        placeholder="Sipërfaqja"
-                        required
-                        min="0"
-                        className="flex-1"
-                      />
-                      <Select 
-                        value={formData.areaUnit} 
-                        onValueChange={(value) => handleSelectChange('areaUnit', value)}
-                      >
-                        <SelectTrigger className="w-[120px]">
-                          <SelectValue placeholder="Njësia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="m2">m²</SelectItem>
-                          <SelectItem value="km2">km²</SelectItem>
-                          <SelectItem value="hektar">Hektar</SelectItem>
-                          <SelectItem value="ari">Ari</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="bedrooms">Dhoma gjumi</Label>
-                      <Input
-                        id="bedrooms"
-                        name="bedrooms"
-                        type="number"
-                        value={formData.bedrooms}
-                        onChange={handleInputChange}
-                        placeholder="Numri i dhomave"
-                        min="0"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="bathrooms">Banjo</Label>
-                      <Input
-                        id="bathrooms"
-                        name="bathrooms"
-                        type="number"
-                        value={formData.bathrooms}
-                        onChange={handleInputChange}
-                        placeholder="Numri i banjove"
-                        min="0"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="parking">Parking</Label>
-                      <Input
-                        id="parking"
-                        name="parking"
-                        type="number"
-                        value={formData.parking}
-                        onChange={handleInputChange}
-                        placeholder="Numri i vendeve"
-                        min="0"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 md:col-span-2">
-                    <RequiredLabel>Përshkrimi</RequiredLabel>
-                    <Textarea 
-                      id="description" 
-                      name="description" 
-                      value={formData.description}
+                    <Label htmlFor="parking">Parking</Label>
+                    <Input
+                      id="parking"
+                      name="parking"
+                      type="number"
+                      value={formData.parking}
                       onChange={handleInputChange}
-                      placeholder="Përshkruani pronën" 
-                      className="min-h-32" 
-                      required 
+                      placeholder="Numri i vendeve"
+                      min="0"
                     />
                   </div>
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <RequiredLabel>Përshkrimi</RequiredLabel>
+                  <Textarea 
+                    id="description" 
+                    name="description" 
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    placeholder="Përshkruani pronën" 
+                    className="min-h-32" 
+                    required 
+                  />
+                </div>
+
+                <div className="flex justify-end mt-6">
+                  <Button type="button" onClick={handleNextTab}>
+                    Faqja tjetër
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -547,180 +684,191 @@ export default function AddPropertyPage() {
           <TabsContent value="features">
             <Card>
               <CardContent className="p-6">
-                <div className="space-y-6">
+                <div className="space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <Label>Balcony</Label>
-                      <input
-                        type="checkbox"
-                        id="hasBalcony"
-                        checked={formData.hasBalcony}
-                        onChange={(e) => setFormData({ ...formData, hasBalcony: e.target.checked })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Garden</Label>
-                      <input
-                        type="checkbox"
-                        id="hasGarden"
-                        checked={formData.hasGarden}
-                        onChange={(e) => setFormData({ ...formData, hasGarden: e.target.checked })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Pool</Label>
-                      <input
-                        type="checkbox"
-                        id="hasPool"
-                        checked={formData.hasPool}
-                        onChange={(e) => setFormData({ ...formData, hasPool: e.target.checked })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Security</Label>
-                      <input
-                        type="checkbox"
-                        id="hasSecurity"
-                        checked={formData.hasSecurity}
-                        onChange={(e) => setFormData({ ...formData, hasSecurity: e.target.checked })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Air Conditioning</Label>
-                      <input
-                        type="checkbox"
-                        id="hasAirConditioning"
-                        checked={formData.hasAirConditioning}
-                        onChange={(e) => setFormData({ ...formData, hasAirConditioning: e.target.checked })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Heating</Label>
-                      <input
-                        type="checkbox"
-                        id="hasHeating"
-                        checked={formData.hasHeating}
-                        onChange={(e) => setFormData({ ...formData, hasHeating: e.target.checked })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Internet</Label>
-                      <input
-                        type="checkbox"
-                        id="hasInternet"
-                        checked={formData.hasInternet}
-                        onChange={(e) => setFormData({ ...formData, hasInternet: e.target.checked })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Elevator</Label>
-                      <input
-                        type="checkbox"
-                        id="hasElevator"
-                        checked={formData.hasElevator}
-                        onChange={(e) => setFormData({ ...formData, hasElevator: e.target.checked })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">Karakteristikat</h3>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={addCharacteristic}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Shto karakteristikë
-                      </Button>
-                    </div>
-                    <div className="space-y-4">
-                      {characteristics.map((characteristic, index) => (
-                        <div key={index} className="flex gap-2">
-                          <Input
-                            value={characteristic}
-                            onChange={(e) => updateCharacteristic(index, e.target.value)}
-                            placeholder="Shto karakteristikë"
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeCharacteristic(index)}
-                            disabled={characteristics.length === 1}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">Vendet në afërsi</h3>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={addNearbyPlace}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Shto vend
-                      </Button>
-                    </div>
-                    <div className="space-y-4">
-                      {nearbyPlaces.map((place, index) => (
-                        <div key={index} className="flex gap-2">
-                          <Input
-                            value={place.name}
-                            onChange={(e) => updateNearbyPlace(index, 'name', e.target.value)}
-                            placeholder="Emri i vendit"
-                          />
-                          <div className="relative">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold">Karakteristika shtesë</h3>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={addCharacteristic}
+                          className="h-8"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Shto karakteristikë
+                        </Button>
+                      </div>
+                      <div className="grid gap-3">
+                        {characteristics.map((characteristic, index) => (
+                          <div key={index} className="flex gap-2">
                             <Input
-                              value={place.distance}
-                              onChange={(e) => updateNearbyPlace(index, 'distance', e.target.value)}
-                              placeholder="Distanca"
-                              type="text"
-                              inputMode="numeric"
-                              pattern="[0-9.]*"
+                              value={characteristic}
+                              onChange={(e) => updateCharacteristic(index, e.target.value)}
+                              placeholder="p.sh. Pamje nga deti, Garazh i mbyllur, etj."
+                              className="flex-1"
                             />
-                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">km</span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              onClick={() => removeCharacteristic(index)}
+                              disabled={characteristics.length === 1}
+                              className="h-10 w-10 p-0"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
                           </div>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeNearbyPlace(index)}
-                            disabled={nearbyPlaces.length === 1}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold">Në afërsi</h3>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={addNearbyPlace}
+                          className="h-8"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Shto vend
+                        </Button>
+                      </div>
+                      <div className="grid gap-3">
+                        {nearbyPlaces.map((place, index) => (
+                          <div key={index} className="flex gap-2">
+                            <Input
+                              value={place.name}
+                              onChange={(e) => updateNearbyPlace(index, 'name', e.target.value)}
+                              placeholder="Emri i vendit"
+                              className="flex-1"
+                            />
+                            <div className="relative flex-1">
+                              <Input
+                                value={place.distance}
+                                onChange={(e) => updateNearbyPlace(index, 'distance', e.target.value)}
+                                placeholder="Distanca"
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9.]*"
+                              />
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">km</span>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              onClick={() => removeNearbyPlace(index)}
+                              disabled={nearbyPlaces.length === 1}
+                              className="h-10 w-10 p-0"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Karakteristikat kryesore</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="hasBalcony"
+                          checked={formData.hasBalcony}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, hasBalcony: checked as boolean }))
+                          }
+                        />
+                        <Label htmlFor="hasBalcony">Ballkon</Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="hasGarden"
+                          checked={formData.hasGarden}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, hasGarden: checked as boolean }))
+                          }
+                        />
+                        <Label htmlFor="hasGarden">Kopsht</Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="hasPool"
+                          checked={formData.hasPool}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, hasPool: checked as boolean }))
+                          }
+                        />
+                        <Label htmlFor="hasPool">Pishinë</Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="hasSecurity"
+                          checked={formData.hasSecurity}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, hasSecurity: checked as boolean }))
+                          }
+                        />
+                        <Label htmlFor="hasSecurity">Siguri</Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="hasAirConditioning"
+                          checked={formData.hasAirConditioning}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, hasAirConditioning: checked as boolean }))
+                          }
+                        />
+                        <Label htmlFor="hasAirConditioning">Kondicioner</Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="hasHeating"
+                          checked={formData.hasHeating}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, hasHeating: checked as boolean }))
+                          }
+                        />
+                        <Label htmlFor="hasHeating">Ngrohje</Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="hasInternet"
+                          checked={formData.hasInternet}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, hasInternet: checked as boolean }))
+                          }
+                        />
+                        <Label htmlFor="hasInternet">Internet</Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="hasElevator"
+                          checked={formData.hasElevator}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({ ...prev, hasElevator: checked as boolean }))
+                          }
+                        />
+                        <Label htmlFor="hasElevator">Ashensor</Label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <Button type="button" onClick={handleNextTab}>
+                      Faqja tjetër
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -729,7 +877,7 @@ export default function AddPropertyPage() {
 
           <TabsContent value="images">
             <Card>
-              <CardContent className="p-6">
+              <CardContent className="p-6 space-y-6">
                 <div className="space-y-4">
                   <div className="flex items-center gap-4">
                     <Button type="button" onClick={handleImageUpload}>
@@ -765,13 +913,19 @@ export default function AddPropertyPage() {
                     ))}
                   </div>
                 </div>
+
+                <div className="flex justify-end mt-6">
+                  <Button type="button" onClick={handleNextTab}>
+                    Faqja tjetër
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
 
           <TabsContent value="location">
             <Card>
-              <CardContent className="p-6">
+              <CardContent className="p-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="address">Adresa</Label>
@@ -864,31 +1018,16 @@ export default function AddPropertyPage() {
                     </div>
                   )}
                 </div>
+
+                <div className="flex justify-end mt-6">
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Duke u ruajtur..." : "Shto pronën"}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
-
-        <div className="flex justify-end gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.back()}
-            disabled={isSubmitting}
-          >
-            Anulo
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Duke u ruajtur...
-              </>
-            ) : (
-              'Shto pronën'
-            )}
-          </Button>
-        </div>
       </form>
     </div>
   )

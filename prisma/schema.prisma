@@ -76,7 +76,8 @@ model Type {
 }
 
 model Property {
-  id                 String   @id @default(cuid())
+  id                 Int      @id @default(autoincrement())
+  oldId              String   @unique @map("id")
   title              String
   location           String
   price              Float

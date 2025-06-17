@@ -28,7 +28,7 @@ import { useRouter } from "next/navigation"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
-import { Edit } from "lucide-react"
+import { Edit, Trash2 } from "lucide-react"
 
 type Category = {
   id: string;
@@ -69,9 +69,10 @@ type Property = {
 
 interface PropertyTableProps {
   properties: PropertyType[]
+  minWidth?: number
 }
 
-export default function PropertyTable({ properties: initialProperties }: PropertyTableProps) {
+export default function PropertyTable({ properties: initialProperties, minWidth = 900 }: PropertyTableProps) {
   const [properties, setProperties] = useState<PropertyType[]>(initialProperties)
   const [search, setSearch] = useState("")
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -195,7 +196,7 @@ export default function PropertyTable({ properties: initialProperties }: Propert
   };
 
   return (
-    <div className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100" style={{ WebkitOverflowScrolling: 'touch' }}>
+    <>
       <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
         <input
           type="text"
@@ -224,87 +225,85 @@ export default function PropertyTable({ properties: initialProperties }: Propert
           ))}
         </div>
       </div>
-      <table className="w-full min-w-full whitespace-nowrap">
-        <thead>
-          <tr className="border-b">
-            <th className="text-left py-2 cursor-pointer" onClick={() => handleSort('title')}>
-              Titulli {sortField === 'title' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </th>
-            <th className="text-left py-2 cursor-pointer" onClick={() => handleSort('category')}>
-              Kategoria {sortField === 'category' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </th>
-            <th className="text-left py-2 cursor-pointer" onClick={() => handleSort('price')}>
-              Çmimi {sortField === 'price' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </th>
-            <th className="text-left py-2 cursor-pointer" onClick={() => handleSort('location')}>
-              Lokacioni {sortField === 'location' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </th>
-            <th className="text-left py-2">Veprime</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedProperties.map((property) => (
-            <tr key={property.id} className="border-b">
-              <td className="py-2 flex items-center gap-2">
-                {property.title}
-                {Array.isArray(property.statuses) && property.statuses.length > 0 && [...new Set(property.statuses)].map((status: string) => {
-                  const statusInfo = statusMap[status] || { label: (types.find(t => t.value === status)?.name || status), color: "bg-gray-200 text-gray-800" };
-                  return (
-                    <span key={status} className={`ml-2 px-2 py-1 text-xs rounded ${statusInfo.color}`}>
-                      {statusInfo.label}
-                    </span>
-                  );
-                })}
-              </td>
-              <td className="py-2">
-                {property.category?.value 
-                  ? categoryMap[property.category.value.toLowerCase()] 
-                  : property.category?.name || 'N/A'}
-              </td>
-              <td className="py-2">{formatPrice(property.price, property.currency)}</td>
-              <td className="py-2">{property.location}</td>
-              <td className="py-2 flex gap-2">
-                <Link href={`/admin/properties/${property.id}/edit`}>
-                  <Button variant="outline" size="sm" className="hover:bg-blue-600 hover:text-white transition-colors">
-                    <Edit className="h-4 w-4 mr-2" />
-                    Ndrysho
-                  </Button>
-                </Link>
-                <Button
-                  variant="ghost"
-                  className="text-red-600 hover:bg-red-600 hover:text-white transition-colors"
-                  size="sm"
-                  onClick={() => handleDelete(property.id)}
-                  disabled={deletingId === property.id}
-                >
-                  Fshij
-                </Button>
-              </td>
+      <div className="w-full overflow-x-auto">
+        <table className="w-full border-collapse" style={{ minWidth: `${minWidth}px` }}>
+          <thead>
+            <tr>
+              <th className="w-2/6 text-left py-2 px-4 border border-slate-200">Titulli {sortField === 'title' && (sortDirection === 'asc' ? '↑' : '↓')}</th>
+              <th className="w-1/6 text-left py-2 px-4 border border-slate-200">Kategoria {sortField === 'category' && (sortDirection === 'asc' ? '↑' : '↓')}</th>
+              <th className="w-1/6 text-left py-2 px-4 border border-slate-200">Çmimi {sortField === 'price' && (sortDirection === 'asc' ? '↑' : '↓')}</th>
+              <th className="w-1/6 text-left py-2 px-4 border border-slate-200">Lokacioni {sortField === 'location' && (sortDirection === 'asc' ? '↑' : '↓')}</th>
+              <th className="w-1/6 text-right py-2 px-4 border border-slate-200">Veprime</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="mt-4 flex justify-between items-center">
-        <div>
-          <span>Page {currentPage} of {totalPages}</span>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </Button>
+          </thead>
+          <tbody>
+            {paginatedProperties.map((property) => (
+              <tr key={property.id}>
+                <td className="w-2/6 py-2 px-4 border border-slate-200">
+                  <div className="flex items-center gap-2">
+                    <span>{property.title}</span>
+                    {Array.isArray(property.statuses) && property.statuses.length > 0 && [...new Set(property.statuses)].map((status: string) => {
+                      const statusInfo = statusMap[status] || { label: (types.find(t => t.value === status)?.name || status), color: "bg-gray-200 text-gray-800" };
+                      return (
+                        <span key={status} className={`ml-2 px-2 py-1 text-xs rounded ${statusInfo.color}`}>
+                          {statusInfo.label}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </td>
+                <td className="w-1/6 py-2 px-4 border border-slate-200">
+                  {property.category?.value 
+                    ? categoryMap[property.category.value.toLowerCase()] 
+                    : property.category?.name || 'N/A'}
+                </td>
+                <td className="w-1/6 py-2 px-4 border border-slate-200">{formatPrice(property.price, property.currency)}</td>
+                <td className="w-1/6 py-2 px-4 border border-slate-200">{property.location}</td>
+                <td className="w-1/6 py-2 px-4 text-right border border-slate-200">
+                  <div className="flex gap-2 justify-end">
+                    <Link href={`/admin/properties/${property.id}/edit`}>
+                      <Button variant="outline" size="sm" className="hover:bg-blue-600 hover:text-white transition-colors">
+                        <Edit className="h-4 w-4 mr-2" />
+                        Ndrysho
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDelete(property.id)}
+                      disabled={deletingId === property.id}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="mt-4 flex justify-between items-center">
+          <div>
+            <span>Page {currentPage} of {totalPages}</span>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 } 

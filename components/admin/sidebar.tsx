@@ -16,13 +16,22 @@ import {
   Home,
   User,
   Mail,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { logoutUser } from "@/lib/auth"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
+import { Dispatch, SetStateAction, useEffect } from "react"
+import { Button } from "@/components/ui/button"
 
-export default function AdminSidebar() {
+interface AdminSidebarProps {
+  isCollapsed: boolean
+  setIsCollapsed: Dispatch<SetStateAction<boolean>>
+}
+
+export default function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { data: session } = useSession()
@@ -105,18 +114,57 @@ export default function AdminSidebar() {
     },
   ]
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setIsCollapsed(true)
+      } else {
+        setIsCollapsed(false)
+      }
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [setIsCollapsed])
+
   return (
-    <div className="w-64 bg-white border-r min-h-screen">
-      <div className="p-6 flex items-center gap-2">
-        <h2 className="text-lg font-bold text-brand-primary">Admin Panel</h2>
+    <div className={cn(
+      "bg-white border-r min-h-screen transition-all duration-300 relative",
+      isCollapsed ? "w-16" : "w-64"
+    )}>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute -right-4 top-6 h-8 w-8 rounded-full border bg-white shadow-sm"
+        onClick={() => setIsCollapsed(!isCollapsed)}
+      >
+        {isCollapsed ? (
+          <ChevronRight className="h-4 w-4" />
+        ) : (
+          <ChevronLeft className="h-4 w-4" />
+        )}
+      </Button>
+
+      <div className={cn(
+        "p-6 flex items-center gap-2",
+        isCollapsed && "justify-center"
+      )}>
+        {!isCollapsed && <h2 className="text-lg font-bold text-brand-primary">Admin Panel</h2>}
       </div>
-      <nav className="px-4 pb-4">
+
+      <nav className={cn(
+        "px-4 pb-4",
+        isCollapsed && "px-2"
+      )}>
         <Link
           href="/"
-          className="flex items-center gap-2 mb-6 text-sm font-medium text-slate-600 hover:text-brand-primary px-3 py-2"
+          className={cn(
+            "flex items-center gap-2 mb-6 text-sm font-medium text-slate-600 hover:text-brand-primary px-3 py-2",
+            isCollapsed && "justify-center"
+          )}
         >
           <Home className="h-4 w-4" />
-          Kthehu në faqen kryesore
+          {!isCollapsed && "Kthehu në faqen kryesore"}
         </Link>
 
         <ul className="space-y-1">
@@ -131,12 +179,13 @@ export default function AdminSidebar() {
                   className={cn(
                     "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium",
                     isActive(item.href) ? "bg-brand-primary text-white" : "text-slate-700 hover:bg-slate-100",
+                    isCollapsed && "justify-center"
                   )}
                 >
                   <item.icon className="h-4 w-4" />
-                  {item.title}
+                  {!isCollapsed && item.title}
                 </Link>
-                {item.children && (
+                {item.children && !isCollapsed && (
                   <ul className="ml-6 mt-1 space-y-1">
                     {item.children.map((child, j) => (
                       <li key={j}>
@@ -163,10 +212,13 @@ export default function AdminSidebar() {
         <div className="mt-6 pt-6 border-t">
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+            className={cn(
+              "flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50",
+              isCollapsed && "justify-center"
+            )}
           >
             <LogOut className="h-4 w-4" />
-            Dilni
+            {!isCollapsed && "Dilni"}
           </button>
         </div>
       </nav>

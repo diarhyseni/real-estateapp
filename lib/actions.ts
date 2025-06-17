@@ -38,28 +38,28 @@ export async function getProperties(params: {
     console.log('Fetching properties from:', url)
     console.log('Request params:', params)
 
-    const response = await fetch(url, {
-      cache: 'no-store',
+      const response = await fetch(url, {
+        cache: 'no-store',
       next: { revalidate: 0 },
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('API Error:', {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorText,
-        url: url
+        headers: {
+          'Content-Type': 'application/json',
+        },
       })
-      throw new Error(`Failed to fetch properties: ${response.status} ${response.statusText}`)
-    }
+      
+      if (!response.ok) {
+      const errorText = await response.text()
+        console.error('API Error:', {
+          status: response.status,
+          statusText: response.statusText,
+        error: errorText,
+          url: url
+        })
+        throw new Error(`Failed to fetch properties: ${response.status} ${response.statusText}`)
+      }
 
-    const data = await response.json()
-    console.log(`Received ${data.length} properties`)
-    return data
+      const data = await response.json()
+      console.log(`Received ${data.length} properties`)
+      return data
   } catch (error) {
     console.error('Error in getProperties:', error)
     // Return empty array instead of throwing to prevent page crashes

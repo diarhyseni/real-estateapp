@@ -110,7 +110,7 @@ export default function ContactsPage() {
   }
 
   return (
-    <div className="container mx-auto px-6 py-8">
+    <div className="mx-auto px-6">
       {loading && (
         <div className="flex items-center justify-center h-64">
           <p className="text-gray-500">Duke ngarkuar kontaktet...</p>
@@ -129,27 +129,27 @@ export default function ContactsPage() {
             <h1 className="text-2xl font-bold">Kontaktet</h1>
           </div>
 
-          <div className="rounded-md border bg-white">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Emri</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Telefoni</TableHead>
-                  <TableHead>Mesazhi</TableHead>
-                  <TableHead>Burimi</TableHead>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Statusi</TableHead>
-                  <TableHead>Veprime</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+          <div className="rounded-md border bg-white p-2 sm:p-6 max-w-full overflow-x-auto">
+            <table className="w-full border-collapse" style={{ minWidth: '900px' }}>
+              <thead>
+                <tr>
+                  <th className="py-2 px-4 border border-slate-200">Emri</th>
+                  <th className="py-2 px-4 border border-slate-200">Email</th>
+                  <th className="py-2 px-4 border border-slate-200">Telefoni</th>
+                  <th className="py-2 px-4 border border-slate-200">Mesazhi</th>
+                  <th className="py-2 px-4 border border-slate-200">Burimi</th>
+                  <th className="py-2 px-4 border border-slate-200">Data</th>
+                  <th className="py-2 px-4 border border-slate-200">Statusi</th>
+                  <th className="py-2 px-4 border border-slate-200">Veprime</th>
+                </tr>
+              </thead>
+              <tbody>
                 {contacts.map((contact) => (
-                  <TableRow key={contact.id}>
-                    <TableCell>{contact.firstName} {contact.lastName}</TableCell>
-                    <TableCell>{contact.email}</TableCell>
-                    <TableCell>{contact.phone}</TableCell>
-                    <TableCell className="max-w-xs">
+                  <tr key={contact.id}>
+                    <td className="py-2 px-4 border border-slate-200">{contact.firstName} {contact.lastName}</td>
+                    <td className="py-2 px-4 border border-slate-200">{contact.email}</td>
+                    <td className="py-2 px-4 border border-slate-200">{contact.phone}</td>
+                    <td className="py-2 px-4 border border-slate-200 max-w-xs">
                       <div className="flex items-center gap-2">
                         <span className="truncate">{contact.message}</span>
                         <Button
@@ -164,8 +164,8 @@ export default function ContactsPage() {
                           <MessageSquare className="h-4 w-4" />
                         </Button>
                       </div>
-                    </TableCell>
-                    <TableCell className="max-w-xs truncate">
+                    </td>
+                    <td className="py-2 px-4 border border-slate-200 max-w-xs truncate">
                       {contact.source ? (
                         <a 
                           href={contact.source} 
@@ -176,9 +176,9 @@ export default function ContactsPage() {
                           {new URL(contact.source).pathname}
                         </a>
                       ) : 'N/A'}
-                    </TableCell>
-                    <TableCell>{format(new Date(contact.createdAt), 'dd/MM/yyyy HH:mm')}</TableCell>
-                    <TableCell>
+                    </td>
+                    <td className="py-2 px-4 border border-slate-200">{format(new Date(contact.createdAt), 'dd/MM/yyyy HH:mm')}</td>
+                    <td className="py-2 px-4 border border-slate-200">
                       <span className={`px-2 py-1 rounded-full text-xs ${
                         contact.status === 'unread' 
                           ? 'bg-yellow-100 text-yellow-800' 
@@ -186,8 +186,8 @@ export default function ContactsPage() {
                       }`}>
                         {contact.status === 'unread' ? 'Pa lexuar' : 'Kontaktuar'}
                       </span>
-                    </TableCell>
-                    <TableCell>
+                    </td>
+                    <td className="py-2 px-4 border border-slate-200">
                       <div className="flex gap-2">
                         {contact.status === 'unread' && (
                           <Button
@@ -209,11 +209,11 @@ export default function ContactsPage() {
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </td>
+                  </tr>
                 ))}
-              </TableBody>
-            </Table>
+              </tbody>
+            </table>
           </div>
         </div>
       )}

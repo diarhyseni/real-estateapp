@@ -93,60 +93,44 @@ export default function CategoriesPage() {
         </Link>
       </div>
 
-      <div className="bg-white rounded-lg border shadow-sm">
-        <div className="p-4 border-b flex flex-col sm:flex-row gap-4 justify-between">
-          <div className="relative w-full sm:max-w-xs">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-            <Input
-              type="text"
-              placeholder="Kërko kategori..."
-              className="pl-10"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Emri</TableHead>
-                <TableHead>Numri i pronave</TableHead>
-                <TableHead className="text-right">Veprimet</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((category) => (
-                <TableRow key={category.id}>
-                  <TableCell className="font-medium">{category.name}</TableCell>
-                  <TableCell>
-                    <span className="font-semibold">
-                      {category.properties?.length || 0} prona
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right flex gap-2 justify-end">
-                    <Link href={`/admin/categories/${category.id}/edit`}>
-                      <Button variant="outline" size="sm" className="hover:bg-blue-600 hover:text-white transition-colors">
-                        <Edit className="h-4 w-4 mr-2" />
-                        Ndrysho
-                      </Button>
-                    </Link>
-                    <Button
-                      variant="ghost"
-                      className="text-red-600 hover:bg-red-600 hover:text-white transition-colors"
-                      size="sm"
-                      onClick={() => handleDeleteCategory(category.id)}
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Fshij
+      <div className="bg-white rounded-lg border shadow-sm p-2 sm:p-6 max-w-full overflow-x-auto">
+        <table className="w-full border-collapse" style={{ minWidth: '900px' }}>
+          <thead>
+            <tr>
+              <th className="py-2 px-4 border border-slate-200">Emri</th>
+              <th className="py-2 px-4 border border-slate-200 text-center">Numri i pronave</th>
+              <th className="py-2 px-4 border border-slate-200 text-right">Veprimet</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((category) => (
+              <tr key={category.id}>
+                <td className="py-2 px-4 border border-slate-200 font-medium">{category.name}</td>
+                <td className="py-2 px-4 border border-slate-200 text-center">
+                  <span className="font-semibold">
+                    {category.properties?.length || 0} prona
+                  </span>
+                </td>
+                <td className="py-2 px-4 border border-slate-200 text-right flex gap-2 justify-end">
+                  <Link href={`/admin/categories/${category.id}/edit`}>
+                    <Button variant="outline" size="sm" className="hover:bg-blue-600 hover:text-white transition-colors">
+                      <Edit className="h-4 w-4 mr-2" />
+                      Ndrysho
                     </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteCategory(category.id)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {/* Delete Confirmation Dialog */}

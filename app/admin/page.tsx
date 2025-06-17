@@ -1,5 +1,3 @@
- export const dynamic = "force-dynamic";
-
 import { Property } from "@/lib/types"
 import { getProperties } from "@/lib/actions"
 import PropertyTable from "@/components/admin/property-table"
@@ -9,16 +7,16 @@ export default async function AdminPage() {
   const properties = await getProperties({}) as Property[]
 
   return (
-    <div className="py-8 w-full">
-      <div className="flex justify-between items-center mb-8 px-6">
-        <h1 className="text-3xl font-bold">Paneli i Administratorit</h1>
+    <div className="w-full">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-xl sm:text-3xl font-bold">Paneli i Administratorit</h1>
         <AddPropertyForm />
       </div>
       
-      <div className="grid gap-6 px-6">
-        <div className="bg-white rounded-lg shadow p-6">
+      <div className="grid gap-6 ">
+        <div className="bg-white rounded-lg shadow p-2 sm:p-6 max-w-full overflow-x-auto">
           <h2 className="text-xl font-semibold mb-4">Pronat</h2>
-          <PropertyTable properties={properties} />
+          <PropertyTable properties={properties} minWidth={1300} />
         </div>
       </div>
     </div>

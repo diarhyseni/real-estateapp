@@ -88,23 +88,25 @@ export default function TypesPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Emri</TableHead>
-                <TableHead>Numri i pronave</TableHead>
-                <TableHead className="text-right">Veprimet</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+        <div className="bg-white rounded-lg border shadow-sm p-2 sm:p-6 max-w-full overflow-x-auto">
+          <table className="w-full border-collapse" style={{ minWidth: '900px' }}>
+            <thead>
+              <tr>
+                <th className="py-2 px-4 border border-slate-200">Emri</th>
+                <th className="py-2 px-4 border border-slate-200 text-center">Numri i pronave</th>
+                <th className="py-2 px-4 border border-slate-200 text-right">Veprimet</th>
+              </tr>
+            </thead>
+            <tbody>
               {filteredTypes.map((type) => (
-                <TableRow key={type.id}>
-                  <TableCell className="font-medium">{type.name}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{type._count?.properties ?? 0} prona</Badge>
-                  </TableCell>
-                  <TableCell className="text-right flex gap-2 justify-end">
+                <tr key={type.id}>
+                  <td className="py-2 px-4 border border-slate-200 font-medium">{type.name}</td>
+                  <td className="py-2 px-4 border border-slate-200 text-center">
+                    <span className="font-semibold">
+                      {type._count?.properties ?? 0} prona
+                    </span>
+                  </td>
+                  <td className="py-2 px-4 border border-slate-200 text-right flex gap-2 justify-end">
                     <Link href={`/admin/types/${type.id}/edit`}>
                       <Button variant="outline" size="sm" className="hover:bg-blue-600 hover:text-white transition-colors">
                         <Edit className="h-4 w-4 mr-2" />
@@ -113,18 +115,17 @@ export default function TypesPage() {
                     </Link>
                     <Button
                       variant="ghost"
-                      className="text-red-600 hover:bg-red-600 hover:text-white transition-colors"
                       size="sm"
                       onClick={() => handleDeleteType(type.id)}
+                      className="text-red-600 hover:text-red-800"
                     >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Fshij
+                      <Trash2 className="h-4 w-4" />
                     </Button>
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               ))}
-            </TableBody>
-          </Table>
+            </tbody>
+          </table>
         </div>
       </div>
 
