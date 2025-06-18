@@ -40,7 +40,6 @@ export async function getProperties(params: {
 
       const response = await fetch(url, {
         cache: 'no-store',
-      next: { revalidate: 0 },
         headers: {
           'Content-Type': 'application/json',
         },

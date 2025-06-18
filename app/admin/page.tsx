@@ -3,6 +3,9 @@ import { getProperties } from "@/lib/actions"
 import PropertyTable from "@/components/admin/property-table"
 import AddPropertyForm from "@/components/admin/add-property-form"
 
+// Force dynamic rendering for admin page
+export const dynamic = 'force-dynamic'
+
 export default async function AdminPage() {
   const properties = await getProperties({}) as Property[]
 
