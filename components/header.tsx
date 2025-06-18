@@ -15,18 +15,21 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import { usePathname } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { ChevronRight } from "lucide-react"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [categories, setCategories] = useState([])
+  const [categoriesOpen, setCategoriesOpen] = useState(false)
+  const [servicesOpen, setServicesOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
   const { data: session, status, update: updateSession } = useSession()
-  const [imageKey, setImageKey] = useState(Date.now())
+  const [imageKey, setImageKey] = useState(0)
   const [prevImage, setPrevImage] = useState(session?.user?.image);
+  const [categories, setCategories] = useState([])
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -253,58 +256,188 @@ export default function Header() {
                 <span className="sr-only">Menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-72">
-              <div className="grid gap-6 py-6">
+            <SheetContent side="left" className="w-80 bg-brand-primary text-white border-r border-brand-secondary">
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+              
+              {/* User Profile Section */}
+              {session && (
+                <div className="flex items-center gap-3 p-4 border-b border-brand-secondary/30 mb-6">
+                  <Avatar className="h-12 w-12 bg-brand-secondary text-white">
+                    {session?.user?.image ? (
+                      <AvatarImage 
+                        key={imageKey}
+                        src={session.user.image}
+                        alt={session?.user?.name || ''} 
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          console.error('Failed to load image:', session.user.image);
+                        }}
+                      />
+                    ) : null}
+                    <AvatarFallback className="bg-brand-secondary text-white">
+                      {getInitials(session?.user?.name || "")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <span className="font-semibold text-white">{session.user.name}</span>
+                    <span className="text-sm text-white/70">
+                      {session.user.role === "admin"
+                        ? "Administrator"
+                        : session.user.role === "agent"
+                        ? "Agjent"
+                        : "Përdorues"}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-6">
+                {/* Categories Dropdown */}
                 <div className="space-y-2">
-                  <h4 className="font-medium text-sm">Kategoritë</h4>
-                  <nav className="grid gap-2">
-                    {categories.map((category: any) => (
+                  <button
+                    onClick={() => setCategoriesOpen(!categoriesOpen)}
+                    className="flex items-center justify-between w-full text-lg font-semibold text-white hover:text-brand-secondary transition-colors"
+                  >
+                    Kategoritë
+                    <ChevronDown className={`h-5 w-5 transition-transform ${categoriesOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {categoriesOpen && (
+                    <nav className="ml-4 space-y-2 border-l border-brand-secondary/30 pl-4">
+                      {categories.map((category: any) => (
+                        <Link
+                          key={category.id}
+                          href={`/category/${category.value.toLowerCase()}`}
+                          className="block text-base text-white/80 hover:text-brand-secondary transition-colors"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          {category.name}
+                        </Link>
+                      ))}
+                    </nav>
+                  )}
+                </div>
+
+                {/* Services Dropdown */}
+                <div className="space-y-2">
+                  <button
+                    onClick={() => setServicesOpen(!servicesOpen)}
+                    className="flex items-center justify-between w-full text-lg font-semibold text-white hover:text-brand-secondary transition-colors"
+                  >
+                    Shërbimet
+                    <ChevronDown className={`h-5 w-5 transition-transform ${servicesOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {servicesOpen && (
+                    <nav className="ml-4 space-y-2 border-l border-brand-secondary/30 pl-4">
                       <Link
-                        key={category.id}
-                        href={`/category/${category.value.toLowerCase()}`}
-                        className="text-base font-medium hover:text-brand-secondary"
+                        href="/sale"
+                        className={cn(
+                          "block text-base text-white/80 hover:text-brand-secondary transition-colors",
+                          isActive("/sale") && "text-brand-secondary font-medium"
+                        )}
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        {category.name}
+                        Në Shitje
                       </Link>
-                    ))}
-                  </nav>
+                      <Link
+                        href="/rent"
+                        className={cn(
+                          "block text-base text-white/80 hover:text-brand-secondary transition-colors",
+                          isActive("/rent") && "text-brand-secondary font-medium"
+                        )}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Me Qira
+                      </Link>
+                      <Link
+                        href="/exclusive"
+                        className={cn(
+                          "block text-base text-white/80 hover:text-brand-secondary transition-colors",
+                          isActive("/exclusive") && "text-brand-secondary font-medium"
+                        )}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Ekskluzive
+                      </Link>
+                    </nav>
+                  )}
                 </div>
-                <div className="space-y-2">
-                  <h4 className="font-medium text-sm">Shërbimet</h4>
-                  <nav className="grid gap-4">
+
+                {/* User Actions */}
+                {session ? (
+                  <div className="space-y-2 pt-4 border-t border-brand-secondary/30">
                     <Link
-                      href="/sale"
-                      className={cn(
-                        "text-base font-medium hover:text-brand-secondary",
-                        isActive("/sale") && "text-brand-secondary font-medium"
-                      )}
+                      href="/profile"
+                      className="flex items-center gap-3 text-base text-white/80 hover:text-brand-secondary transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      Në Shitje
+                      <Settings className="h-5 w-5" />
+                      <span>Profili im</span>
                     </Link>
+                    
+                    {/* Only show favorites for regular users (not admin or agent) */}
+                    {session.user.role === "user" && (
+                      <Link
+                        href="/favorites"
+                        className="flex items-center gap-3 text-base text-white/80 hover:text-brand-secondary transition-colors"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <Heart className="h-5 w-5" />
+                        <span>Të preferuarat</span>
+                      </Link>
+                    )}
+                    
+                    {/* Admin/Agent Panel */}
+                    {(session.user.role === "admin" || session.user.role === "agent") && (
+                      <Link
+                        href="/admin"
+                        className="flex items-center gap-3 text-base text-white/80 hover:text-brand-secondary transition-colors"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <LayoutDashboard className="h-5 w-5" />
+                        <span>Paneli i Administratorit</span>
+                      </Link>
+                    )}
+                    
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsMenuOpen(false);
+                      }}
+                      className="flex items-center gap-3 text-base text-red-400 hover:text-red-300 transition-colors w-full"
+                    >
+                      <LogOut className="h-5 w-5" />
+                      <span>Dilni</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-2 pt-4 border-t border-brand-secondary/30">
                     <Link
-                      href="/rent"
-                      className={cn(
-                        "text-base font-medium hover:text-brand-secondary",
-                        isActive("/rent") && "text-brand-secondary font-medium"
-                      )}
+                      href="/login"
+                      className="flex items-center gap-3 text-base text-white/80 hover:text-brand-secondary transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      Me Qira
+                      <LogIn className="h-5 w-5" />
+                      <span>Kyçu</span>
                     </Link>
                     <Link
-                      href="/exclusive"
-                      className={cn(
-                        "text-base font-medium hover:text-brand-secondary",
-                        isActive("/exclusive") && "text-brand-secondary font-medium"
-                      )}
+                      href="/register"
+                      className="flex items-center gap-3 text-base text-white/80 hover:text-brand-secondary transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      Ekskluzive
+                      <UserPlus className="h-5 w-5" />
+                      <span>Regjistrohu</span>
                     </Link>
-                  </nav>
-                </div>
+                    <Link
+                      href="/favorites"
+                      className="flex items-center gap-3 text-base text-white/80 hover:text-brand-secondary transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Heart className="h-5 w-5" />
+                      <span>Të preferuarat</span>
+                    </Link>
+                  </div>
+                )}
               </div>
             </SheetContent>
           </Sheet>

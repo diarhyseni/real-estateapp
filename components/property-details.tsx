@@ -10,6 +10,7 @@ import { Property } from "@/lib/types"
 import { cn, formatPrice } from "@/lib/utils"
 import { ImageGallery } from "./image-gallery"
 import ContactForm from "@/components/contact-form"
+import PropertyCard from "@/components/property-card"
 
 interface PropertyDetailsProps {
   property: Property & {
@@ -21,10 +22,11 @@ interface PropertyDetailsProps {
       image: string | null
     },
     address?: string
-  }
+  },
+  similarProperties?: Property[]
 }
 
-export default function PropertyDetails({ property }: PropertyDetailsProps) {
+export default function PropertyDetails({ property, similarProperties }: PropertyDetailsProps) {
   if (!property) {
     return null
   }
@@ -85,28 +87,28 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
               <TabsTrigger value="location">Vendndodhja</TabsTrigger>
             </TabsList>
             <TabsContent value="details" className="pt-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div className="flex flex-row gap-4 mb-8 w-full">
                 {property.bedrooms !== null && property.bedrooms !== undefined && (
-                  <div className="flex flex-col items-center justify-center border rounded-lg py-6 bg-white">
+                  <div className="flex flex-col items-center justify-center border rounded-lg py-6 bg-white w-1/3">
                     <Bed className="h-6 w-6 mb-2 text-brand-secondary" />
                     <div className="text-sm text-slate-500">Dhoma gjumi</div>
                     <div className="text-xl font-bold">{property.bedrooms}</div>
                   </div>
                 )}
                 {property.bathrooms !== null && property.bathrooms !== undefined && (
-                  <div className="flex flex-col items-center justify-center border rounded-lg py-6 bg-white">
+                  <div className="flex flex-col items-center justify-center border rounded-lg py-6 bg-white w-1/3">
                     <Bath className="h-6 w-6 mb-2 text-brand-secondary" />
                     <div className="text-sm text-slate-500">Banjo</div>
                     <div className="text-xl font-bold">{property.bathrooms}</div>
                   </div>
                 )}
-                <div className="flex flex-col items-center justify-center border rounded-lg py-6 bg-white">
+                <div className="flex flex-col items-center justify-center border rounded-lg py-6 bg-white w-1/3">
                   <Maximize2 className="h-6 w-6 mb-2 text-brand-secondary" />
                   <div className="text-sm text-slate-500">Sipërfaqja</div>
                   <div className="text-xl font-bold">{property.area || '-'} {property.areaUnit || 'm²'}</div>
                 </div>
                 {property.parking !== null && property.parking !== undefined && property.parking > 0 && (
-                  <div className="flex flex-col items-center justify-center border rounded-lg py-6 bg-white">
+                  <div className="flex flex-col items-center justify-center border rounded-lg py-6 bg-white w-1/3">
                     <Car className="h-6 w-6 mb-2 text-brand-secondary" />
                     <div className="text-sm text-slate-500">Parking</div>
                     <div className="text-xl font-bold">{property.parking}</div>
@@ -123,8 +125,8 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
                     ))}
                   </div>
                   {property.address && (
-                    <div className="mt-2 text-base text-gray-700">
-                      <strong>Adresa e plotë:</strong> {property.address}
+                    <div className="mt-2 text-base mb-8">
+                      <strong>Adresa e plotë:</strong> <span className="text-black">{property.address}</span>
                     </div>
                   )}
                 </div>
@@ -196,14 +198,16 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
             </TabsContent>
             <TabsContent value="location" className="pt-4">
               <h3 className="text-xl font-semibold mb-4">Lokacioni</h3>
-              <div className="aspect-[16/9] overflow-hidden rounded-lg bg-slate-100 mb-4 relative h-[450px]">
+              <div className="w-full max-w-full aspect-[16/9] overflow-hidden rounded-lg bg-slate-100 mb-4 relative" style={{height: 'auto', minHeight: '200px'}}>
                 {property.googleMapsIframe ? (
                   <div 
-                    className="absolute inset-0"
+                    className="absolute inset-0 w-full h-full"
+                    style={{ minHeight: '200px' }}
                     dangerouslySetInnerHTML={{ 
                       __html: property.googleMapsIframe.replace(
-                        'width="600" height="450"',
-                        'width="100%" height="100%"'
+                        /width="\d+"/g, 'width="100%"'
+                      ).replace(
+                        /height="\d+"/g, 'height="100%"'
                       ).replace(
                         'style="border:0;"',
                         'style="border:0; width:100%; height:100%; position:absolute; top:0; left:0;"'
@@ -289,6 +293,20 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
           </div>
         </div>
       </div>
+
+      {/* Similar Properties Section - below agent contact, full width */}
+      {similarProperties && similarProperties.length > 0 && (
+        <div className="w-full max-w-full mt-12">
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold mb-4">Të ngjajshme</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {similarProperties.slice(0, 3).map((prop) => (
+                <PropertyCard key={prop.id} property={prop} />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 } 

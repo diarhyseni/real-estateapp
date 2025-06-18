@@ -28,7 +28,7 @@ import { useRouter } from "next/navigation"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
-import { Edit, Trash2 } from "lucide-react"
+import { Edit, Trash2, Search, Link as LinkIcon } from "lucide-react"
 
 type Category = {
   id: string;
@@ -198,16 +198,19 @@ export default function PropertyTable({ properties: initialProperties, minWidth 
   return (
     <>
       <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-        <input
-          type="text"
-          placeholder="Kërko pronë..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="border rounded px-3 py-2 w-full md:w-80"
-        />
-        <div className="flex gap-2 mt-2 md:mt-0">
+        <div className="relative w-full md:w-80">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <input
+            type="text"
+            placeholder="Kërko pronë..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="border rounded pl-9 pr-3 py-2 w-full"
+          />
+        </div>
+        <div className="flex gap-x-2 mt-2 md:mt-0 flex-nowrap overflow-x-auto w-full max-w-full">
           <button
-            className={`ml-2 px-2 py-1 text-xs rounded ${filter === 'ALL' ? 'bg-gray-200 text-gray-800 font-bold border border-gray-400' : 'bg-white text-gray-800 border border-gray-200'}`}
+            className={`px-2 py-1 text-xs rounded ${filter === 'ALL' ? 'bg-gray-200 text-gray-800 font-bold border border-gray-400' : 'bg-white text-gray-800 border border-gray-200'}`}
             onClick={() => setFilter('ALL')}
             type="button"
           >
@@ -216,7 +219,7 @@ export default function PropertyTable({ properties: initialProperties, minWidth 
           {types.map(type => (
             <button
               key={type.value}
-              className={`ml-2 px-2 py-1 text-xs rounded ${filter === type.value.toLowerCase() ? 'bg-gray-300 text-black font-bold border border-gray-400' : 'bg-white text-gray-800 border border-gray-200'}`}
+              className={`px-2 py-1 text-xs rounded ${filter === type.value.toLowerCase() ? 'bg-gray-300 text-black font-bold border border-gray-400' : 'bg-white text-gray-800 border border-gray-200'}`}
               onClick={() => setFilter(type.value.toLowerCase())}
               type="button"
             >
@@ -240,16 +243,21 @@ export default function PropertyTable({ properties: initialProperties, minWidth 
             {paginatedProperties.map((property) => (
               <tr key={property.id}>
                 <td className="w-2/6 py-2 px-4 border border-slate-200">
-                  <div className="flex items-center gap-2">
-                    <span>{property.title}</span>
-                    {Array.isArray(property.statuses) && property.statuses.length > 0 && [...new Set(property.statuses)].map((status: string) => {
-                      const statusInfo = statusMap[status] || { label: (types.find(t => t.value === status)?.name || status), color: "bg-gray-200 text-gray-800" };
-                      return (
-                        <span key={status} className={`ml-2 px-2 py-1 text-xs rounded ${statusInfo.color}`}>
-                          {statusInfo.label}
-                        </span>
-                      );
-                    })}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span>{property.title}</span>
+                      {Array.isArray(property.statuses) && property.statuses.length > 0 && [...new Set(property.statuses)].map((status: string) => {
+                        const statusInfo = statusMap[status] || { label: (types.find(t => t.value === status)?.name || status), color: "bg-gray-200 text-gray-800" };
+                        return (
+                          <span key={status} className={`ml-2 px-2 py-1 text-xs rounded ${statusInfo.color}`}>
+                            {statusInfo.label}
+                          </span>
+                        );
+                      })}
+                    </div>
+                    <a href={`/property/${property.id}`} target="_blank" rel="noopener noreferrer" className="ml-2 text-gray-400 hover:text-brand-primary">
+                      <LinkIcon className="h-4 w-4" />
+                    </a>
                   </div>
                 </td>
                 <td className="w-1/6 py-2 px-4 border border-slate-200">

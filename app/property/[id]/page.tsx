@@ -63,24 +63,40 @@ export default function PropertyPage({ params: promisedParams }: { params: Promi
 
     const fetchSimilarProperties = async (currentProperty: PropertyWithUser) => {
       try {
-        // 1. Fetch by same category
-        let response = await fetch(`/api/properties?category=${currentProperty.category?.id}`)
-        let data = await response.json()
-        // Exclude current property
-        let similar = data.filter((p: any) => p.id !== currentProperty.id)
-        // If less than 3, fetch by type and fill
-        const typeValue = currentProperty.type || null;
-        if (similar.length < 3 && typeValue) {
-          const needed = 3 - similar.length
-          let typeRes = await fetch(`/api/properties?type=${typeValue}`)
-          let typeData = await typeRes.json()
-          // Exclude current property and already included
-          let more = typeData.filter((p: any) => p.id !== currentProperty.id && !similar.some((sp: any) => sp.id === p.id))
-          similar = [...similar, ...more.slice(0, needed)]
+        let similar: PropertyWithUser[] = [];
+
+        // 1. Try by same category
+        if (currentProperty.category?.id) {
+          const res = await fetch(`/api/properties?category=${currentProperty.category.id}`);
+          let data = await res.json();
+          similar = data.filter((p: any) => p.id !== currentProperty.id);
         }
-        setSimilarProperties(similar.slice(0, 3))
+
+        // 2. If less than 3, try by type
+        if (similar.length < 3 && currentProperty.type) {
+          const needed = 3 - similar.length;
+          const res = await fetch(`/api/properties?type=${currentProperty.type}`);
+          let data = await res.json();
+          let more = data.filter(
+            (p: any) => p.id !== currentProperty.id && !similar.some((sp: any) => sp.id === p.id)
+          );
+          similar = [...similar, ...more.slice(0, needed)];
+        }
+
+        // 3. If still less than 3, fill with any other properties
+        if (similar.length < 3) {
+          const needed = 3 - similar.length;
+          const res = await fetch(`/api/properties`);
+          let data = await res.json();
+          let more = data.filter(
+            (p: any) => p.id !== currentProperty.id && !similar.some((sp: any) => sp.id === p.id)
+          );
+          similar = [...similar, ...more.slice(0, needed)];
+        }
+
+        setSimilarProperties(similar.slice(0, 3));
       } catch (err) {
-        setSimilarProperties([])
+        setSimilarProperties([]);
       }
     }
 
@@ -115,18 +131,8 @@ export default function PropertyPage({ params: promisedParams }: { params: Promi
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 container py-8">
-        <PropertyDetails property={property} />
-        {/* Similar Properties Section */}
-        {similarProperties.length > 0 && (
-          <div className="mt-16">
-            <h2 className="text-2xl font-bold mb-6">Prona të ngjajshme</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {similarProperties.map((prop) => (
-                <PropertyCard key={prop.id} property={prop} />
-              ))}
-            </div>
-          </div>
-        )}
+        <PropertyDetails property={property} similarProperties={similarProperties} />
+        {/* Similar Properties Section is now rendered inside PropertyDetails */}
       </main>
       <Footer />
     </div>

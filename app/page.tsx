@@ -136,6 +136,37 @@ export default async function Home() {
             ))}
           </div>
         </section>
+
+        {/* Rreth nesh Section */}
+        <section className="py-16 container">
+          <h2 className="text-3xl font-bold mb-8 text-black">Rreth nesh</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div>
+              <p className="text-lg text-gray-700 mb-4">
+                Ne jemi një agjenci e pasurive të paluajtshme me përvojë shumëvjeçare në tregun e Mitrovicës dhe më gjerë. Qëllimi ynë është t'ju ndihmojmë të gjeni pronën e duhur për ju, qoftë për banim apo investim. Na vizitoni në zyrat tona ose na kontaktoni për çdo pyetje!
+              </p>
+              <ul className="text-gray-600 space-y-2">
+                <li><strong>Adresa:</strong> Rruga "Agim Ramadani", 10000 Prishtinë, Kosovë</li>
+                <li><strong>Tel:</strong> +383 49 123 456</li>
+                <li><strong>Email:</strong> info@rokarealestate.com</li>
+              </ul>
+            </div>
+            <div>
+              <div className="w-full aspect-[16/9] rounded-lg overflow-hidden shadow">
+                <iframe
+                  src="https://www.google.com/maps?q=Rruga+Agim+Ramadani,+Prishtinë,+Kosovë&output=embed"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen={true}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Lokacioni ynë"
+                ></iframe>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
       <Footer />
     </div>
