@@ -62,37 +62,54 @@ export default function PropertyPage({ params: promisedParams }: { params: Promi
     }
 
     const fetchSimilarProperties = async (currentProperty: PropertyWithUser) => {
+      function shuffle(array: any[]) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
       try {
-        let similar: PropertyWithUser[] = [];
+        // Fetch all properties except the current one
+        const res = await fetch(`/api/properties`);
+        let all = await res.json();
+        all = all.filter((p: any) => p.id !== currentProperty.id);
 
-        // 1. Try by same category
-        if (currentProperty.category?.id) {
-          const res = await fetch(`/api/properties?category=${currentProperty.category.id}`);
-          let data = await res.json();
-          similar = data.filter((p: any) => p.id !== currentProperty.id);
-        }
+        // 1. Same status (SALE/RENT)
+        const currentStatus = currentProperty.statuses?.[0];
+        let sameStatus = all.filter((p: any) => p.statuses && p.statuses[0] === currentStatus);
 
-        // 2. If less than 3, try by type
-        if (similar.length < 3 && currentProperty.type) {
-          const needed = 3 - similar.length;
-          const res = await fetch(`/api/properties?type=${currentProperty.type}`);
-          let data = await res.json();
-          let more = data.filter(
-            (p: any) => p.id !== currentProperty.id && !similar.some((sp: any) => sp.id === p.id)
-          );
-          similar = [...similar, ...more.slice(0, needed)];
-        }
+        // 2. Same category within same status
+        let sameStatusCategory = sameStatus.filter(
+          (p: any) => p.category?.id === currentProperty.category?.id
+        );
+        sameStatusCategory = shuffle(sameStatusCategory);
 
-        // 3. If still less than 3, fill with any other properties
-        if (similar.length < 3) {
-          const needed = 3 - similar.length;
-          const res = await fetch(`/api/properties`);
-          let data = await res.json();
-          let more = data.filter(
-            (p: any) => p.id !== currentProperty.id && !similar.some((sp: any) => sp.id === p.id)
-          );
-          similar = [...similar, ...more.slice(0, needed)];
-        }
+        // 3. Same type within same status (but not already in sameStatusCategory)
+        let sameStatusType = sameStatus.filter(
+          (p: any) => p.type === currentProperty.type && !sameStatusCategory.some((sp: any) => sp.id === p.id)
+        );
+        sameStatusType = shuffle(sameStatusType);
+
+        // 4. Fill with other same status
+        let otherSameStatus = sameStatus.filter(
+          (p: any) => !sameStatusCategory.some((sp: any) => sp.id === p.id) && !sameStatusType.some((sp: any) => sp.id === p.id)
+        );
+        otherSameStatus = shuffle(otherSameStatus);
+
+        // 5. If still not enough, fill with any others
+        let others = all.filter(
+          (p: any) => !sameStatus.some((sp: any) => sp.id === p.id)
+        );
+        others = shuffle(others);
+
+        // Combine in order of priority
+        let similar = [
+          ...sameStatusCategory,
+          ...sameStatusType,
+          ...otherSameStatus,
+          ...others
+        ];
 
         setSimilarProperties(similar.slice(0, 3));
       } catch (err) {

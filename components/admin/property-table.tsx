@@ -28,7 +28,7 @@ import { useRouter } from "next/navigation"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
-import { Edit, Trash2, Search, Link as LinkIcon } from "lucide-react"
+import { Edit, Trash2, Search, Link as LinkIcon, Facebook } from "lucide-react"
 
 type Category = {
   id: string;
@@ -269,6 +269,7 @@ export default function PropertyTable({ properties: initialProperties, minWidth 
                 <td className="w-1/6 py-2 px-4 border border-slate-200">{property.location}</td>
                 <td className="w-1/6 py-2 px-4 text-right border border-slate-200">
                   <div className="flex gap-2 justify-end">
+                
                     <Link href={`/admin/properties/${property.id}/edit`}>
                       <Button variant="outline" size="sm" className="hover:bg-blue-600 hover:text-white transition-colors">
                         <Edit className="h-4 w-4 mr-2" />

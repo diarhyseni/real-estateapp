@@ -43,12 +43,12 @@ export default function PropertyCarousel({ properties }: PropertyCarouselProps) 
 
   return (
     <div className="relative">
-      <div className="flex items-center justify-end mb-4">
-        <div className="flex gap-2">
+      <div className="flex items-center justify-end mb-6">
+        <div className="flex gap-3">
           <Button
             variant="outline"
             size="icon"
-            className="rounded-full bg-white/10 hover:bg-white/20 border-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="rounded-full bg-white/10 hover:bg-white/20 border-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             onClick={scrollPrev}
             disabled={!canScrollPrev}
           >
@@ -57,7 +57,7 @@ export default function PropertyCarousel({ properties }: PropertyCarouselProps) 
           <Button
             variant="outline"
             size="icon"
-            className="rounded-full bg-white/10 hover:bg-white/20 border-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="rounded-full bg-white/10 hover:bg-white/20 border-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             onClick={scrollNext}
             disabled={!canScrollNext}
           >
@@ -66,10 +66,15 @@ export default function PropertyCarousel({ properties }: PropertyCarouselProps) 
         </div>
       </div>
       <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex gap-6">
+        <div className="flex -ml-6">
           {properties.map((property) => (
-            <div key={property.id} className="flex-[0_0_100%] md:flex-[0_0_50%] lg:flex-[0_0_33.333%] min-w-0">
-              <PropertyCard property={property} />
+            <div 
+              key={property.id} 
+              className="pl-6 min-w-0 w-full md:w-1/2 lg:w-1/3 flex-none"
+            >
+              <div className="h-full">
+                <PropertyCard property={property} />
+              </div>
             </div>
           ))}
         </div>

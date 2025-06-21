@@ -88,9 +88,9 @@ export default async function Home() {
         <section className="relative h-[700px] flex items-center">
           <div className="absolute inset-0">
             <img
-              src="/uploads/mitrovica.jpeg"
+              src="/uploads/mitrovica1b.png"
               alt="Hero background"
-              className="w-full h-full object-cover" style={{ filter: 'blur(2px)' }}
+              className="w-full h-full object-cover" style={{ filter: 'blur(3px)' }}
             />
             <div className="absolute inset-0 bg-black/50" />
           </div>
@@ -113,56 +113,82 @@ export default async function Home() {
 
         <section className="py-16 container">
           <h2 className="text-3xl font-bold mb-8 text-black">Kategoritë e Pronave</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {mergedCategories.map((category: any) => (
-              <Link
-                key={category.id}
-                href={`/category/${category.value.toLowerCase()}`}
-                className="group relative overflow-hidden rounded-lg"
-              >
-                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors z-10" />
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="w-full h-40 object-cover transition-transform group-hover:scale-105"
-                />
-                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white">
-                  <h3 className="text-xl font-bold">{category.name}</h3>
-                  <p className="text-sm">
-                    {category.count} prona
-                  </p>
-                </div>
-              </Link>
-            ))}
+          <div className="grid grid-cols-12 gap-4">
+            {mergedCategories.map((category: any, index: number) => {
+              // Define the layout classes based on index
+              const layoutClasses = [
+                "col-span-6 md:col-span-4 row-span-2", // First item (large)
+                "col-span-6 md:col-span-4 row-span-2 md:row-span-1", // Second item (medium)
+                "col-span-6 md:col-span-4 row-span-2 md:row-span-1", // Third item (medium)
+                "col-span-6 md:col-span-4 row-span-2 md:row-span-1", // Fourth item (medium)
+                "col-span-6 md:col-span-4 row-span-2", // Fifth item (medium)
+                "col-span-6 md:col-span-4 row-span-2 md:row-span-1", // Sixth item (extra large)
+                "col-span-6 md:col-span-4 row-span-2 md:row-span-1", // Seventh item (large)
+              ][index] || "col-span-6 md:col-span-4 row-span-2 md:row-span-1"; // Default fallback
+
+              return (
+                <Link
+                  key={category.id}
+                  href={`/category/${category.value.toLowerCase()}`}
+                  className={cn(
+                    "group relative overflow-hidden rounded-lg",
+                    layoutClasses,
+                    // Set height based on screen size and row span
+                    "h-[250px] md:h-auto",
+                    "md:only:[&.md\\:row-span-1]:h-[190px] md:only:[&.md\\:row-span-2]:h-[400px]"
+                  )}
+                >
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors z-10" />
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white">
+                    <h3 className={cn(
+                      "font-bold transition-transform duration-300 group-hover:-translate-y-1",
+                      "text-xl md:text-2xl"
+                    )}>
+                      {category.name}
+                    </h3>
+                    <p className="text-sm mt-2 opacity-90">
+                      {category.count} prona
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </section>
 
         {/* Rreth nesh Section */}
-        <section className="py-16 container">
-          <h2 className="text-3xl font-bold mb-8 text-black">Rreth nesh</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div>
-              <p className="text-lg text-gray-700 mb-4">
-                Ne jemi një agjenci e pasurive të paluajtshme me përvojë shumëvjeçare në tregun e Mitrovicës dhe më gjerë. Qëllimi ynë është t'ju ndihmojmë të gjeni pronën e duhur për ju, qoftë për banim apo investim. Na vizitoni në zyrat tona ose na kontaktoni për çdo pyetje!
-              </p>
-              <ul className="text-gray-600 space-y-2">
-                <li><strong>Adresa:</strong> Rruga "Agim Ramadani", 10000 Prishtinë, Kosovë</li>
-                <li><strong>Tel:</strong> +383 49 123 456</li>
-                <li><strong>Email:</strong> info@rokarealestate.com</li>
-              </ul>
-            </div>
-            <div>
-              <div className="w-full aspect-[16/9] rounded-lg overflow-hidden shadow">
-                <iframe
-                  src="https://www.google.com/maps?q=Rruga+Agim+Ramadani,+Prishtinë,+Kosovë&output=embed"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen={true}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Lokacioni ynë"
-                ></iframe>
+        <section className="py-16 bg-gray-50 border-t border-gray-200">
+          <div className="container">
+            <h2 className="text-3xl font-bold mb-8 text-black">Rreth nesh</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div>
+                <p className="text-lg text-gray-800 mb-4">
+                  Ne jemi një agjenci e pasurive të paluajtshme me përvojë shumëvjeçare në tregun e Mitrovicës dhe më gjerë. Qëllimi ynë është t'ju ndihmojmë të gjeni pronën e duhur për ju, qoftë për banim apo investim. Na vizitoni në zyrat tona ose na kontaktoni për çdo pyetje!
+                </p>
+                <ul className="text-gray-700 space-y-2">
+                  <li><strong>Adresa:</strong> Rruga "Agim Ramadani", 10000 Prishtinë, Kosovë</li>
+                  <li><strong>Tel:</strong> +383 49 123 456</li>
+                  <li><strong>Email:</strong> info@mitrovicarealestate.com</li>
+                </ul>
+              </div>
+              <div>
+                <div className="w-full aspect-[16/9] rounded-lg overflow-hidden shadow">
+                  <iframe
+                    src="https://www.google.com/maps?q=Rruga+Agim+Ramadani,+Prishtinë,+Kosovë&output=embed"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen={true}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Lokacioni ynë"
+                  ></iframe>
+                </div>
               </div>
             </div>
           </div>

@@ -8,7 +8,7 @@ import AuthProvider from "@/components/providers/session-provider"
 const outfit = Outfit({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Roka Real Estate",
+  title: "Mitrovica Real Estate",
   description: "Find your dream property in Kosovo",
 }
 

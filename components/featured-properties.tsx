@@ -7,9 +7,14 @@ export default async function FeaturedProperties() {
   const properties = await getProperties({ exclusive: true }) as Property[]
 
   return (
-    <section className="bg-[#0D1831] py-16">
+    <section className="bg-gradient-to-br from-[#0D1831] to-[#1a2847] py-20">
       <div className="container">
-        <h2 className="text-3xl font-bold text-white mb-8">Pronat Ekskluzive</h2>
+        <div className="flex flex-col items-center text-center mb-12">
+          <h2 className="text-4xl font-bold text-white mb-4">Pronat Ekskluzive</h2>
+          <p className="text-lg text-gray-300 max-w-2xl">
+            Zgjidhni nga koleksioni ynë i pronave ekskluzive, të përzgjedhura me kujdes për ju
+          </p>
+        </div>
         <PropertyCarousel properties={properties} />
       </div>
     </section>

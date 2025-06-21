@@ -122,6 +122,7 @@ export default function RentPage() {
               onFilterChange={handleFilterChange}
               initialType="RENT"
               properties={memoizedProperties}
+              priceStep={50}
             />
           </div>
           <div className="md:col-span-3">

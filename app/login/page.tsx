@@ -72,7 +72,7 @@ function LoginForm() {
       <div className="bg-white rounded-lg shadow-lg p-8">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-brand-primary">Kyçu në llogarinë tuaj</h1>
-          <p className="text-slate-500 mt-2">Shfletoni pronat tuaja të preferuara</p>
+          <p className="text-slate-500 mt-2">dhe shfletoni pronat e preferuara</p>
         </div>
 
         {error && <div className="bg-red-50 text-red-600 p-3 rounded-md mb-6 text-sm">{error}</div>}
@@ -93,9 +93,6 @@ function LoginForm() {
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <Label htmlFor="password">Fjalëkalimi</Label>
-              <Link href="/forgot-password" className="text-sm text-brand-secondary hover:underline">
-                Keni harruar fjalëkalimin?
-              </Link>
             </div>
             <div className="relative">
               <Input

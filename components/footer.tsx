@@ -20,8 +20,8 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-5 w-5 text-brand-secondary" />
-                <a href="mailto:info@rokarealestate.com" className="text-white/80 hover:text-brand-secondary transition-colors">
-                  info@rokarealestate.com
+                <a href="mailto:info@mitrovicarealestate.com" className="text-white/80 hover:text-brand-secondary transition-colors">
+                  info@mitrovicarealestate.com
                 </a>
               </li>
               <li className="flex items-start gap-2">
@@ -80,7 +80,7 @@ export default function Footer() {
       </div>
       <div className="border-t border-white/10">
         <div className="container py-6 text-center text-sm text-white/60">
-          <p>© {new Date().getFullYear()} Roka Real Estate. Të gjitha të drejtat e rezervuara.</p>
+          <p>© {new Date().getFullYear()} Mitrovica Real Estate. Të gjitha të drejtat e rezervuara.</p>
         </div>
       </div>
     </footer>
