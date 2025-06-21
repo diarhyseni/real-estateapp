@@ -9,6 +9,17 @@ import Footer from "@/components/footer"
 import { Property } from "@/lib/types"
 import PropertyFilters from "@/components/property-filters"
 
+const categoryDisplayNames: { [key: string]: string } = {
+  apartment: "Banesat",
+  house: "Shtëpitë",
+  commercial: "Objektet Komerciale",
+  local: "Lokalet",
+  land: "Toka - Parcela",
+  object: "Objektet Komerciale",
+  office: "Zyre",
+  warehouse: "Depot",
+};
+
 function PropertyList({ properties }: { properties: Property[] }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -33,6 +44,8 @@ export default function CategoryPage({ params: promisedParams }: { params: Promi
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
   const memoizedProperties = useMemo(() => properties, [properties])
+
+  const categoryName = categoryDisplayNames[params.slug] || params.slug;
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -147,7 +160,7 @@ export default function CategoryPage({ params: promisedParams }: { params: Promi
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 container py-8">
-        <h1 className="text-3xl font-bold mb-8">{params.slug}</h1>
+        <h1 className="text-3xl font-bold mb-8">{categoryName}</h1>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="md:col-span-1">
             <PropertyFilters 
