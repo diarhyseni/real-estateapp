@@ -34,7 +34,6 @@ export default function AddPropertyPage() {
   const [nearbyPlaces, setNearbyPlaces] = useState<Array<{ name: string; distance: string }>>([{ name: '', distance: '' }])
   const [categories, setCategories] = useState<{id: string, name: string, value: string}[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>("")
-  const [selectedType, setSelectedType] = useState<string>("")
   const [types, setTypes] = useState<{id: string, name: string, value: string}[]>([])
   const [formData, setFormData] = useState({
     title: '',
@@ -152,7 +151,6 @@ export default function AddPropertyPage() {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
     if (name === 'category') setSelectedCategory(value)
-    if (name === 'type') setSelectedType(value)
   }
 
   const handleSelectChange = (name: string, value: string) => {
@@ -174,7 +172,6 @@ export default function AddPropertyPage() {
         if (!formData.location) newErrors.push("Lokacioni është i detyrueshëm")
         if (!formData.description) newErrors.push("Përshkrimi është i detyrueshëm")
         if (!selectedCategory) newErrors.push("Kategoria është e detyrueshme")
-        if (!selectedType) newErrors.push("Lloji është i detyrueshëm")
         if (statuses.length === 0) newErrors.push("Të paktën një lloj (Me qira ose Në shitje) është i detyrueshëm")
         break
       case "features":
