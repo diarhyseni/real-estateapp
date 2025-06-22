@@ -77,6 +77,7 @@ model Type {
 
 model Property {
   id                 String   @id @default(cuid())
+  slugId             Int      @unique @default(autoincrement()) @map("slug_id")
   title              String
   location           String
   price              Float
