@@ -47,8 +47,8 @@ model User {
   address             String?
   accounts            Account[]
   passwordResetTokens PasswordResetToken[]
-  sessions            Session[]
   properties          Property[]
+  sessions            Session[]
 }
 
 model VerificationToken {
@@ -77,14 +77,12 @@ model Type {
 
 model Property {
   id                 String   @id @default(cuid())
-  slugId             Int      @unique @default(autoincrement()) @map("slug_id")
   title              String
   location           String
   price              Float
   currency           String   @default("€")
   typeId             String?
   categoryId         String
-  userId             String?
   bedrooms           Int?
   bathrooms          Int?
   area               Float
@@ -108,9 +106,11 @@ model Property {
   nearbyPlaces       String[]
   areaUnit           String   @default("m2")
   statuses           String[]
-  googleMapsIframe   String?  @db.Text
+  googleMapsIframe   String?
+  userId             String?
   address            String?
   city               String?
+  slugId             Int      @unique @default(autoincrement()) @map("slug_id")
   category           Category @relation("CategoryProperties", fields: [categoryId], references: [id])
   typeRelation       Type?    @relation(fields: [typeId], references: [id])
   user               User?    @relation(fields: [userId], references: [id])
@@ -131,8 +131,8 @@ model Contact {
   lastName  String
   email     String
   phone     String
-  message   String   @db.Text
+  message   String
   createdAt DateTime @default(now())
   status    String   @default("unread")
-  source    String?  // URL where the contact form was submitted
+  source    String?
 }
