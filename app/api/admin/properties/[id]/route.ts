@@ -5,11 +5,12 @@ import { authOptions } from '@/lib/auth'
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const property = await prisma.property.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         category: true,
         typeRelation: true,
@@ -42,9 +43,11 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+    
     // Check authentication
     const session = await getServerSession(authOptions)
     console.log('Session:', session) // Debug log
@@ -136,7 +139,7 @@ export async function PUT(
     console.log('Validated update data:', JSON.stringify(updateData, null, 2))
 
     const property = await prisma.property.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: { 
         category: true,
@@ -175,9 +178,11 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+    
     // Check authentication
     const session = await getServerSession(authOptions)
     console.log('Delete - Session:', session) // Debug log
@@ -201,7 +206,7 @@ export async function DELETE(
 
     // Check if property exists
     const property = await prisma.property.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!property) {
@@ -213,10 +218,10 @@ export async function DELETE(
 
     // Delete the property
     await prisma.property.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
-    console.log('Successfully deleted property:', params.id)
+    console.log('Successfully deleted property:', id)
     return NextResponse.json({ message: 'Property deleted successfully' })
   } catch (error) {
     console.error('Error deleting property:', error)
