@@ -94,14 +94,59 @@ export default function AddPropertyPage() {
 
   useEffect(() => {
     fetch('/api/types')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Failed to fetch types');
+        }
+        return res.json();
+      })
       .then(data => {
-        setTypes(data)
-        if (data.length > 0 && !selectedType) {
-          setSelectedType(data[0].id)
+        if (Array.isArray(data)) {
+          // Add EXCLUSIVE if it's not already in the types
+          const hasExclusive = data.some(type => type.value === 'EXCLUSIVE');
+          const updatedTypes = hasExclusive ? data : [
+            ...data,
+            { id: 'exclusive', name: 'Ekskluzive', value: 'EXCLUSIVE' }
+          ];
+          setTypes(updatedTypes);
+        } else {
+          console.error('Types data is not an array:', data);
+          setTypes([]);
         }
       })
+      .catch(error => {
+        console.error('Error fetching types:', error);
+        setTypes([]);
+      });
   }, [])
+
+  // Add EXCLUSIVE to types if not present
+  useEffect(() => {
+    if (Array.isArray(types) && !types.some(type => type.value === 'EXCLUSIVE')) {
+      setTypes([...types, { id: 'exclusive', name: 'Ekskluzive', value: 'EXCLUSIVE' }]);
+    }
+  }, [types]);
+
+  // Update isExclusive when statuses change
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      isExclusive: statuses.includes('EXCLUSIVE')
+    }));
+  }, [statuses]);
+
+  // Handle status changes from MultiSelect
+  const handleStatusChange = (newStatuses: string[]) => {
+    // Ensure at least one type (RENT or SALE) is selected
+    const hasRentOrSale = newStatuses.some(status => status === 'RENT' || status === 'SALE');
+    
+    if (!hasRentOrSale && newStatuses.length > 0) {
+      // If no RENT or SALE is selected, keep the previous selection
+      return;
+    }
+    
+    setStatuses(newStatuses);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -561,7 +606,7 @@ export default function AddPropertyPage() {
                     <MultiSelect
                       options={Array.isArray(types) ? types.map(type => ({ value: type.value, label: type.name })) : []}
                       value={statuses}
-                      onChange={setStatuses}
+                      onChange={handleStatusChange}
                       placeholder="Zgjidh llojin"
                     />
                   </div>
