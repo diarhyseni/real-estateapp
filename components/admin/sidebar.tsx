@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils"
 import { logoutUser } from "@/lib/auth"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { Dispatch, SetStateAction, useEffect } from "react"
+import { Dispatch, SetStateAction, useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 
 interface AdminSidebarProps {
@@ -35,6 +35,7 @@ export default function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSideb
   const pathname = usePathname()
   const router = useRouter()
   const { data: session } = useSession()
+  const [unreadCount, setUnreadCount] = useState(0)
 
   const handleLogout = async () => {
     await logoutUser()
@@ -42,8 +43,40 @@ export default function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSideb
   }
 
   const isActive = (path: string) => {
+    // For dashboard, only match exact path
+    if (path === "/admin") {
+      return pathname === path
+    }
+    // For other pages, check if pathname starts with the href
     return pathname === path || pathname?.startsWith(`${path}/`)
   }
+
+  // Fetch unread contacts count
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        console.log('Fetching unread contacts count...')
+        const response = await fetch('/api/admin/contacts/unread-count')
+        console.log('Response status:', response.status)
+        if (response.ok) {
+          const data = await response.json()
+          console.log('Unread count data:', data)
+          setUnreadCount(data.count)
+        } else {
+          console.error('Failed to fetch unread count:', response.status, response.statusText)
+        }
+      } catch (error) {
+        console.error('Error fetching unread count:', error)
+      }
+    }
+
+    fetchUnreadCount()
+    
+    // Refresh count every 30 seconds
+    const interval = setInterval(fetchUnreadCount, 30000)
+    
+    return () => clearInterval(interval)
+  }, [])
 
   const navItems = [
     {
@@ -55,6 +88,7 @@ export default function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSideb
       title: "Kontaktet",
       href: "/admin/contacts",
       icon: Mail,
+      badge: unreadCount > 0 ? unreadCount : undefined,
     },
     {
       title: "Kategoritë",
@@ -177,13 +211,23 @@ export default function AdminSidebar({ isCollapsed, setIsCollapsed }: AdminSideb
                 <Link
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium",
+                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium relative",
                     isActive(item.href) ? "bg-brand-primary text-white" : "text-slate-700 hover:bg-slate-100",
                     isCollapsed && "justify-center"
                   )}
                 >
                   <item.icon className="h-4 w-4" />
-                  {!isCollapsed && item.title}
+                  {!isCollapsed && (
+                    <span className="flex-1">{item.title}</span>
+                  )}
+                  {item.badge && (
+                    <span className={cn(
+                      "inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full min-w-[20px] h-5",
+                      isCollapsed && "absolute -top-1 -right-1"
+                    )}>
+                      {item.badge > 99 ? '99+' : item.badge}
+                    </span>
+                  )}
                 </Link>
                 {item.children && !isCollapsed && (
                   <ul className="ml-6 mt-1 space-y-1">

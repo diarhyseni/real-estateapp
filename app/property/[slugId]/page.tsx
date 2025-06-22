@@ -19,7 +19,7 @@ type PropertyWithUser = Property & {
   address?: string
 }
 
-export default function PropertyPage({ params: promisedParams }: { params: Promise<{ id: string }> }) {
+export default function PropertyPage({ params: promisedParams }: { params: Promise<{ slugId: string }> }) {
   const params = use(promisedParams);
   const [property, setProperty] = useState<PropertyWithUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -32,7 +32,7 @@ export default function PropertyPage({ params: promisedParams }: { params: Promi
         setIsLoading(true)
         setError(null)
         
-        const response = await fetch(`/api/properties/${params.id}`)
+        const response = await fetch(`/api/properties/slug/${params.slugId}`)
         if (!response.ok) throw new Error('Failed to fetch property')
         
         const data = await response.json()
@@ -118,7 +118,7 @@ export default function PropertyPage({ params: promisedParams }: { params: Promi
     }
 
     fetchProperty()
-  }, [params.id])
+  }, [params.slugId])
 
   if (error) {
     return (
@@ -154,4 +154,4 @@ export default function PropertyPage({ params: promisedParams }: { params: Promi
       <Footer />
     </div>
   )
-}
+} 

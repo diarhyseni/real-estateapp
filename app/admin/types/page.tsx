@@ -92,7 +92,7 @@ export default function TypesPage() {
           <table className="w-full border-collapse" style={{ minWidth: '900px' }}>
             <thead>
               <tr>
-                <th className="py-2 px-4 border border-slate-200">Emri</th>
+                <th className="py-2 px-4 border border-slate-200 text-left">Emri</th>
                 <th className="py-2 px-4 border border-slate-200 text-center">Numri i pronave</th>
                 <th className="py-2 px-4 border border-slate-200 text-right">Veprimet</th>
               </tr>

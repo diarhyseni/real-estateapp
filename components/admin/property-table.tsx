@@ -65,6 +65,7 @@ type Property = {
   createdAt: string;
   updatedAt: string;
   statuses?: string[];
+  slugId: number;
 }
 
 interface PropertyTableProps {
@@ -177,7 +178,7 @@ export default function PropertyTable({ properties: initialProperties, minWidth 
   const handleDelete = async (id: string) => {
     setDeletingId(id)
     try {
-      const response = await fetch(`/api/properties/${id}`, {
+      const response = await fetch(`/api/admin/properties/${id}`, {
         method: 'DELETE',
       })
       if (!response.ok) {
@@ -255,7 +256,7 @@ export default function PropertyTable({ properties: initialProperties, minWidth 
                         );
                       })}
                     </div>
-                    <a href={`/property/${property.id}`} target="_blank" rel="noopener noreferrer" className="ml-2 text-gray-400 hover:text-brand-primary">
+                    <a href={`/property/${property.slugId}`} target="_blank" rel="noopener noreferrer" className="ml-2 text-gray-400 hover:text-brand-primary">
                       <LinkIcon className="h-4 w-4" />
                     </a>
                   </div>

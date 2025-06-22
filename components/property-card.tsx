@@ -37,10 +37,9 @@ export default function PropertyCard({ property }: PropertyCardProps) {
   const isSale = property.statuses?.includes('SALE')
   const [shareOpen, setShareOpen] = useState(false)
   const [copied, setCopied] = useState(false)
-  const propertyUrl =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}/property/${property.id}`
-      : ''
+  const propertyUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/property/${property.slugId}`
+    : `/property/${property.slugId}`
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -127,7 +126,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           </DialogContent>
         </Dialog>
       </div>
-      <Link href={`/property/${property.id}`} className="group">
+      <Link href={`/property/${property.slugId}`} className="group">
         <div className="overflow-hidden rounded-lg border bg-white transition-all hover:shadow-md">
           <div className="relative">
             <div className="aspect-[4/3] w-full overflow-hidden">

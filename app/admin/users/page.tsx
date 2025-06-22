@@ -50,10 +50,10 @@ export default function UsersPage() {
         <table className="w-full border-collapse" style={{ minWidth: '900px' }}>
           <thead>
             <tr>
-              <th className="py-2 px-4 border border-slate-200">Emri</th>
-              <th className="py-2 px-4 border border-slate-200">Email</th>
-              <th className="py-2 px-4 border border-slate-200">Roli</th>
-              <th className="py-2 px-4 border border-slate-200">Krijuar më</th>
+              <th className="py-2 px-4 border border-slate-200 text-left">Emri</th>
+              <th className="py-2 px-4 border border-slate-200 text-left">Email</th>
+              <th className="py-2 px-4 border border-slate-200 text-left">Roli</th>
+              <th className="py-2 px-4 border border-slate-200 text-left">Krijuar më</th>
               <th className="py-2 px-4 border border-slate-200 text-right">Veprime</th>
             </tr>
           </thead>

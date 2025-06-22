@@ -14,6 +14,7 @@ export type User = {
 
 export interface Property {
   id: string;
+  slugId: number;
   title: string;
   description: string;
   price: number;

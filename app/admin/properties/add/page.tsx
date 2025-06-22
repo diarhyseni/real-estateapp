@@ -307,7 +307,7 @@ export default function AddPropertyPage() {
       })
 
       console.log('Submitting property data:', propertyData)
-      const response = await fetch('/api/properties', {
+      const response = await fetch('/api/admin/properties', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

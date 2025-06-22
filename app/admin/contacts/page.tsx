@@ -133,14 +133,14 @@ export default function ContactsPage() {
             <table className="w-full border-collapse" style={{ minWidth: '900px' }}>
               <thead>
                 <tr>
-                  <th className="py-2 px-4 border border-slate-200">Emri</th>
-                  <th className="py-2 px-4 border border-slate-200">Email</th>
-                  <th className="py-2 px-4 border border-slate-200">Telefoni</th>
-                  <th className="py-2 px-4 border border-slate-200">Mesazhi</th>
-                  <th className="py-2 px-4 border border-slate-200">Burimi</th>
-                  <th className="py-2 px-4 border border-slate-200">Data</th>
-                  <th className="py-2 px-4 border border-slate-200">Statusi</th>
-                  <th className="py-2 px-4 border border-slate-200">Veprime</th>
+                  <th className="py-2 px-4 border border-slate-200 text-left">Emri</th>
+                  <th className="py-2 px-4 border border-slate-200 text-left">Email</th>
+                  <th className="py-2 px-4 border border-slate-200 text-left">Telefoni</th>
+                  <th className="py-2 px-4 border border-slate-200 text-left">Mesazhi</th>
+                  <th className="py-2 px-4 border border-slate-200 text-left">Burimi</th>
+                  <th className="py-2 px-4 border border-slate-200 text-left">Data</th>
+                  <th className="py-2 px-4 border border-slate-200 text-left">Statusi</th>
+                  <th className="py-2 px-4 border border-slate-200 text-right">Veprime</th>
                 </tr>
               </thead>
               <tbody>
@@ -188,7 +188,7 @@ export default function ContactsPage() {
                       </span>
                     </td>
                     <td className="py-2 px-4 border border-slate-200">
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 justify-end">
                         {contact.status === 'unread' && (
                           <Button
                             variant="outline"

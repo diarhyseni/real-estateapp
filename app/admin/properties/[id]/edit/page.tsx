@@ -132,7 +132,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   React.useEffect(() => {
     async function fetchProperty() {
       try {
-        const res = await fetch(`/api/properties/${id}`);
+        const res = await fetch(`/api/admin/properties/${id}`);
         if (!res.ok) {
           throw new Error('Failed to fetch property data.');
         }
@@ -495,7 +495,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         address: formData.address,
       }
 
-      const response = await fetch(`/api/properties/${id}`, {
+      const response = await fetch(`/api/admin/properties/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
