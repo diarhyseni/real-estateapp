@@ -539,8 +539,8 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
 
       <form onSubmit={handleSubmit}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-          <TabsList className="mb-6 flex-nowrap overflow-x-auto w-full max-w-full gap-2">
-            <TabsTrigger value="details" className="relative flex-shrink-0 min-w-[120px]">
+          <TabsList className="mb-6">
+            <TabsTrigger value="details" className="relative">
               Detajet
               {errors.details.length > 0 && (
                 <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center">
@@ -548,7 +548,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="features" className="relative flex-shrink-0 min-w-[120px]">
+            <TabsTrigger value="features" className="relative">
               Karakteristikat
               {errors.features.length > 0 && (
                 <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center">
@@ -556,7 +556,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="images" className="relative flex-shrink-0 min-w-[120px]">
+            <TabsTrigger value="images" className="relative">
               Imazhet
               {errors.images.length > 0 && (
                 <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center">
@@ -564,7 +564,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="location" className="relative flex-shrink-0 min-w-[120px]">
+            <TabsTrigger value="location" className="relative">
               Lokacioni
               {errors.location.length > 0 && (
                 <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center">
@@ -769,11 +769,11 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
 
           <TabsContent value="features">
             <Card>
-              <CardContent className="p-4 sm:p-6">
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CardContent className="p-6">
+                <div className="space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-2">
+                      <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold">Karakteristika shtesë</h3>
                         <Button
                           type="button"
@@ -785,21 +785,21 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                           Shto karakteristikë
                         </Button>
                       </div>
-                      <div className="grid gap-2">
+                      <div className="grid gap-3">
                         {characteristics.map((characteristic, index) => (
-                          <div key={index} className="flex flex-col xs:flex-row gap-2 w-full">
+                          <div key={index} className="flex gap-2">
                             <Input
                               value={characteristic}
                               onChange={(e) => updateCharacteristic(index, e.target.value)}
                               placeholder="p.sh. Pamje nga deti, Garazh i mbyllur, etj."
-                              className="w-full xs:w-auto flex-1"
+                              className="flex-1"
                             />
                             <Button
                               type="button"
                               variant="ghost"
                               onClick={() => removeCharacteristic(index)}
                               disabled={characteristics.length === 1}
-                              className="h-10 w-10 p-0 self-end xs:self-auto"
+                              className="h-10 w-10 p-0"
                             >
                               <X className="h-4 w-4" />
                             </Button>
@@ -809,7 +809,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     </div>
 
                     <div>
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-2">
+                      <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold">Në afërsi</h3>
                         <Button
                           type="button"
@@ -821,16 +821,16 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                           Shto vend
                         </Button>
                       </div>
-                      <div className="grid gap-2">
+                      <div className="grid gap-3">
                         {nearbyPlaces.map((place, index) => (
-                          <div key={index} className="flex flex-col xs:flex-row gap-2 w-full">
+                          <div key={index} className="flex gap-2">
                             <Input
                               value={place.name}
                               onChange={(e) => updateNearbyPlace(index, 'name', e.target.value)}
                               placeholder="Emri i vendit"
-                              className="w-full xs:w-auto flex-1"
+                              className="flex-1"
                             />
-                            <div className="relative w-full xs:w-auto flex-1">
+                            <div className="relative flex-1">
                               <Input
                                 value={place.distance}
                                 onChange={(e) => updateNearbyPlace(index, 'distance', e.target.value)}
@@ -846,7 +846,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                               variant="ghost"
                               onClick={() => removeNearbyPlace(index)}
                               disabled={nearbyPlaces.length === 1}
-                              className="h-10 w-10 p-0 self-end xs:self-auto"
+                              className="h-10 w-10 p-0"
                             >
                               <X className="h-4 w-4" />
                             </Button>
@@ -859,8 +859,8 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                   <Separator />
 
                   <div>
-                    <h3 className="text-lg font-semibold mb-2">Karakteristikat kryesore</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    <h3 className="text-lg font-semibold mb-4">Karakteristikat kryesore</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       <div className="flex items-center space-x-2">
                         <Checkbox 
                           id="hasBalcony"
@@ -1055,43 +1055,44 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                         <SelectValue placeholder="Zgjidh qytetin" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Prishtinë">Prishtinë</SelectItem>
-                        <SelectItem value="Prizren">Prizren</SelectItem>
-                        <SelectItem value="Pejë">Pejë</SelectItem>
+                        <SelectItem value="Deçan">Deçan</SelectItem>
+                        <SelectItem value="Dragash">Dragash</SelectItem>
+                        <SelectItem value="Ferizaj">Ferizaj</SelectItem>
+                        <SelectItem value="Fushë Kosovë">Fushë Kosovë</SelectItem>
                         <SelectItem value="Gjakovë">Gjakovë</SelectItem>
                         <SelectItem value="Gjilan">Gjilan</SelectItem>
-                        <SelectItem value="Mitrovicë">Mitrovicë</SelectItem>
-                        <SelectItem value="Ferizaj">Ferizaj</SelectItem>
-                        <SelectItem value="Podujevë">Podujevë</SelectItem>
-                        <SelectItem value="Vushtrri">Vushtrri</SelectItem>
-                        <SelectItem value="Suharekë">Suharekë</SelectItem>
-                        <SelectItem value="Rahovec">Rahovec</SelectItem>
-                        <SelectItem value="Drenas">Drenas</SelectItem>
+                        <SelectItem value="Gllogoc">Gllogoc</SelectItem>
+                        <SelectItem value="Graçanicë">Graçanicë</SelectItem>
+                        <SelectItem value="Hani i Elezit">Hani i Elezit</SelectItem>
+                        <SelectItem value="Istog">Istog</SelectItem>
+                        <SelectItem value="Junik">Junik</SelectItem>
+                        <SelectItem value="Kamenicë">Kamenicë</SelectItem>
+                        <SelectItem value="Kaçanik">Kaçanik</SelectItem>
+                        <SelectItem value="Klinë">Klinë</SelectItem>
+                        <SelectItem value="Kllokot">Kllokot</SelectItem>
+                        <SelectItem value="Leposaviq">Leposaviq</SelectItem>
                         <SelectItem value="Lipjan">Lipjan</SelectItem>
                         <SelectItem value="Malishevë">Malishevë</SelectItem>
-                        <SelectItem value="Kamenicë">Kamenicë</SelectItem>
-                        <SelectItem value="Viti">Viti</SelectItem>
-                        <SelectItem value="Deçan">Deçan</SelectItem>
-                        <SelectItem value="Istog">Istog</SelectItem>
-                        <SelectItem value="Klinë">Klinë</SelectItem>
-                        <SelectItem value="Skenderaj">Skenderaj</SelectItem>
-                        <SelectItem value="Dragash">Dragash</SelectItem>
-                        <SelectItem value="Fushë Kosovë">Fushë Kosovë</SelectItem>
-                        <SelectItem value="Kaçanik">Kaçanik</SelectItem>
-                        <SelectItem value="Shtime">Shtime</SelectItem>
-                        <SelectItem value="Obiliq">Obiliq</SelectItem>
-                        <SelectItem value="Leposaviq">Leposaviq</SelectItem>
-                        <SelectItem value="Graçanicë">Graçanicë</SelectItem>
-                        <SelectItem value="Han i Elezit">Han i Elezit</SelectItem>
-                        <SelectItem value="Zveçan">Zveçan</SelectItem>
-                        <SelectItem value="Shtërpcë">Shtërpcë</SelectItem>
-                        <SelectItem value="Novobërdë">Novobërdë</SelectItem>
-                        <SelectItem value="Zubin Potok">Zubin Potok</SelectItem>
-                        <SelectItem value="Junik">Junik</SelectItem>
                         <SelectItem value="Mamushë">Mamushë</SelectItem>
-                        <SelectItem value="Ranillug">Ranillug</SelectItem>
-                        <SelectItem value="Kllokot">Kllokot</SelectItem>
+                        <SelectItem value="Mitrovicë">Mitrovicë</SelectItem>
+                        <SelectItem value="Mitrovicë e Veriut">Mitrovicë e Veriut</SelectItem>
+                        <SelectItem value="Novobërdë">Novobërdë</SelectItem>
+                        <SelectItem value="Obiliq">Obiliq</SelectItem>
                         <SelectItem value="Partesh">Partesh</SelectItem>
+                        <SelectItem value="Pejë">Pejë</SelectItem>
+                        <SelectItem value="Podujevë">Podujevë</SelectItem>
+                        <SelectItem value="Prishtinë">Prishtinë</SelectItem>
+                        <SelectItem value="Prizren">Prizren</SelectItem>
+                        <SelectItem value="Rahovec">Rahovec</SelectItem>
+                        <SelectItem value="Ranillug">Ranillug</SelectItem>
+                        <SelectItem value="Skënderaj">Skënderaj</SelectItem>
+                        <SelectItem value="Suharekë">Suharekë</SelectItem>
+                        <SelectItem value="Shtime">Shtime</SelectItem>
+                        <SelectItem value="Shtërpcë">Shtërpcë</SelectItem>
+                        <SelectItem value="Viti">Viti</SelectItem>
+                        <SelectItem value="Vushtrri">Vushtrri</SelectItem>
+                        <SelectItem value="Zubin Potok">Zubin Potok</SelectItem>
+                        <SelectItem value="Zveçan">Zveçan</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -1114,12 +1115,12 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                   </div>
 
                   {googleMapsIframe && (
-                    <div className="md:col-span-2 w-full max-w-full aspect-video overflow-x-auto">
+                    <div className="md:col-span-2 w-full aspect-video">
                       <iframe 
                         src={googleMapsIframe}
                         width="100%"
                         height="100%"
-                        style={{ border: 0, maxWidth: '100%' }}
+                        style={{ border: 0 }}
                         allowFullScreen
                         loading="lazy"
                         referrerPolicy="no-referrer-when-downgrade"

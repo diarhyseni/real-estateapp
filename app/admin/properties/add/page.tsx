@@ -1010,8 +1010,8 @@ export default function AddPropertyPage() {
                         <SelectItem value="Lipjan">Lipjan</SelectItem>
                         <SelectItem value="Malishevë">Malishevë</SelectItem>
                         <SelectItem value="Mamushë">Mamushë</SelectItem>
-                        <SelectItem value="Mitrovicë e Jugut">Mitrovicë e Jugut</SelectItem>
-                        <SelectItem value="Mitrovicë e Veriu">Mitrovicë e Veriu</SelectItem>
+                        <SelectItem value="Mitrovicë">Mitrovicë</SelectItem>
+                        <SelectItem value="Mitrovicë e Veriut">Mitrovicë e Veriut</SelectItem>
                         <SelectItem value="Novobërdë">Novobërdë</SelectItem>
                         <SelectItem value="Obiliq">Obiliq</SelectItem>
                         <SelectItem value="Partesh">Partesh</SelectItem>
