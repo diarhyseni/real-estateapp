@@ -94,7 +94,7 @@ export default async function Home() {
             />
             <div className="absolute inset-0 bg-black/50" />
           </div>
-          <div className="container relative z-10">
+          <div className="container relative z-10 px-4">
             <div className="max-w-2xl text-white">
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
                 Gjej Pronën e Ëndrrave Tënde
