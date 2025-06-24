@@ -9,7 +9,7 @@ export default function HeroButtons() {
   return (
     <div className="flex gap-4">
       <Button 
-        className="bg-brand-primary hover:bg-brand-primary/90 text-white px-8 py-6 text-lg border border-[1px] border-white"
+        className="bg-brand-primary hover:bg-brand-primary/90 text-white px-8 py-6 text-lg "
         onClick={() => {
           document.getElementById('pronat-e-fundit')?.scrollIntoView({ behavior: 'smooth' })
         }}

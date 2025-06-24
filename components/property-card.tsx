@@ -127,7 +127,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         </Dialog>
       </div>
       <Link href={`/property/${property.slugId}`} className="group">
-        <div className="overflow-hidden rounded-lg border bg-white transition-all hover:shadow-md">
+        <div className="overflow-hidden rounded-lg bg-white property-card">
           <div className="relative">
             <div className="aspect-[4/3] w-full overflow-hidden">
               <Image

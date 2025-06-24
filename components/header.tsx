@@ -81,20 +81,20 @@ export default function Header() {
             <Link
               href="/sale"
               className={cn(
-                "nav-button",
+                "nav-button ml-6 pr-4 border-r border-r-[#cccccc40]",
                 isActive("/sale") && "active"
               )}
             >
-              Në Shitje
+              Në shitje
             </Link>
             <Link
               href="/rent"
               className={cn(
-                "nav-button",
+                "nav-button  pr-4 border-r border-r-[#cccccc40]",
                 isActive("/rent") && "active"
               )}
             >
-              Me Qira
+              Me qira
             </Link>
             <Link
               href="/exclusive"
@@ -112,10 +112,11 @@ export default function Header() {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="default"
-                className="hidden md:flex items-center gap-1 bg-brand-primary text-white hover:bg-brand-primary/90 border border-brand-secondary"
+                className="hidden md:flex items-center gap-1 bg-white text-[#0D1831] hover:bg-gray-100 border border-white no-focus-ring"
+                style={{ boxShadow: "none" }}
               >
                 Kategoritë
-                <ChevronDown className="h-4 w-4 ml-1" />
+                <ChevronDown className="h-4 w-4 ml-1 text-[#0D1831]" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 bg-white">
@@ -147,7 +148,8 @@ export default function Header() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="hidden md:flex items-center gap-2 text-white hover:bg-brand-primary/90 hover:text-brand-secondary"
+                  className="hidden md:flex items-center gap-2 text-white hover:bg-brand-primary/90 hover:text-brand-secondary no-focus-ring"
+                  style={{ boxShadow: "none" }}
                 >
                   <Avatar className="h-8 w-8 bg-brand-secondary text-white">
                     {session?.user?.image ? (
@@ -181,7 +183,8 @@ export default function Header() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="hidden md:flex text-white hover:bg-brand-primary/90 hover:text-brand-secondary"
+                  className="hidden md:flex text-white hover:bg-brand-primary/90 hover:text-brand-secondary no-focus-ring"
+                  style={{ boxShadow: "none" }}
                 >
                   <User className="h-5 w-5" />
                   <span className="sr-only">Llogaria</span>

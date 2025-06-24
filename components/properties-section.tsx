@@ -91,8 +91,8 @@ export default function PropertiesSection({ properties }: { properties: Property
         <div className="flex gap-2 items-center">
           <Popover open={filterOpen} onOpenChange={setFilterOpen}>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="gap-2" aria-label="Filtro">
-                <Filter className="h-4 w-4" /> Filtro
+              <Button className="gap-2 bg-brand-primary text-white hover:bg-brand-primary/90 px-6" aria-label="Filtro">
+                <Filter className="h-4 w-4 text-white" /> Filtro
               </Button>
             </PopoverTrigger>
             <PopoverContent align="start" className="w-[350px]" onInteractOutside={(e) => e.preventDefault()}>
@@ -117,11 +117,18 @@ export default function PropertiesSection({ properties }: { properties: Property
       </div>
       <div className="flex justify-center mt-8">
         <Button 
-          variant="outline" 
-          className="gap-2"
+          className="gap-2 bg-brand-primary text-white hover:bg-brand-primary/90 px-6"
           onClick={() => setShowAll(!showAll)}
         >
-          {showAll ? "Shfaq më pak" : "Shfaq të gjitha"} <ChevronRight className="h-4 w-4" />
+          {showAll ? (
+            <>
+              Shfaq më pak <ChevronRight className="h-4 w-4 text-white -rotate-90" />
+            </>
+          ) : (
+            <>
+              Shfaq të gjitha <ChevronRight className="h-4 w-4 text-white rotate-90" />
+            </>
+          )}
         </Button>
       </div>
     </section>
