@@ -87,28 +87,28 @@ export default function PropertyDetails({ property, similarProperties }: Propert
               <TabsTrigger value="location">Vendndodhja</TabsTrigger>
             </TabsList>
             <TabsContent value="details" className="pt-4">
-              <div className="flex flex-row gap-4 mb-8 w-full">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 w-full">
                 {property.bedrooms !== null && property.bedrooms !== undefined && (
-                  <div className="flex flex-col items-center justify-center border rounded-lg py-6 bg-white w-1/3">
+                  <div className="flex flex-col items-center justify-center border rounded-lg py-6 bg-white">
                     <Bed className="h-6 w-6 mb-2 text-brand-secondary" />
                     <div className="text-sm text-slate-500">Dhoma gjumi</div>
                     <div className="text-xl font-bold">{property.bedrooms}</div>
                   </div>
                 )}
                 {property.bathrooms !== null && property.bathrooms !== undefined && (
-                  <div className="flex flex-col items-center justify-center border rounded-lg py-6 bg-white w-1/3">
+                  <div className="flex flex-col items-center justify-center border rounded-lg py-6 bg-white">
                     <Bath className="h-6 w-6 mb-2 text-brand-secondary" />
                     <div className="text-sm text-slate-500">Banjo</div>
                     <div className="text-xl font-bold">{property.bathrooms}</div>
                   </div>
                 )}
-                <div className="flex flex-col items-center justify-center border rounded-lg py-6 bg-white w-1/3">
+                <div className="flex flex-col items-center justify-center border rounded-lg py-6 bg-white">
                   <Maximize2 className="h-6 w-6 mb-2 text-brand-secondary" />
                   <div className="text-sm text-slate-500">Sipërfaqja</div>
                   <div className="text-xl font-bold">{property.area || '-'} {property.areaUnit || 'm²'}</div>
                 </div>
                 {property.parking !== null && property.parking !== undefined && property.parking > 0 && (
-                  <div className="flex flex-col items-center justify-center border rounded-lg py-6 bg-white w-1/3">
+                  <div className="flex flex-col items-center justify-center border rounded-lg py-6 bg-white">
                     <Car className="h-6 w-6 mb-2 text-brand-secondary" />
                     <div className="text-sm text-slate-500">Parking</div>
                     <div className="text-xl font-bold">{property.parking}</div>
