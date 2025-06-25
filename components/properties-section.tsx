@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { ChevronRight, Filter } from "lucide-react"
+import { ChevronRight, Filter, X } from "lucide-react"
 import { Property } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import PropertyCard from "@/components/property-card"
@@ -13,10 +13,12 @@ export default function PropertiesSection({ properties }: { properties: Property
   const [filterOpen, setFilterOpen] = React.useState(false)
   const [filtered, setFiltered] = React.useState<Property[]>(properties)
   const [pendingFilters, setPendingFilters] = React.useState<any>(null)
+  const [filtersApplied, setFiltersApplied] = React.useState(false)
 
   // When properties change, reset filtered
   React.useEffect(() => {
     setFiltered(properties)
+    setFiltersApplied(false)
   }, [properties])
 
   const displayedProperties = showAll ? filtered : filtered.slice(0, 8)
@@ -81,7 +83,16 @@ export default function PropertiesSection({ properties }: { properties: Property
       );
     }
     setFiltered(filtered)
+    setFiltersApplied(true)
     setFilterOpen(false)
+  }
+
+  // Handler for clearing filters
+  const handleClearFilters = () => {
+    setFiltered(properties)
+    setPendingFilters(null)
+    setFiltersApplied(false)
+    setShowAll(false)
   }
 
   return (
@@ -110,27 +121,46 @@ export default function PropertiesSection({ properties }: { properties: Property
           </Popover>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {mappedProperties.map((property) => (
-          <PropertyCard key={property.id} property={property} />
-        ))}
-      </div>
-      <div className="flex justify-center mt-8">
-        <Button 
-          className="gap-2 bg-brand-primary text-white hover:bg-brand-primary/90 px-6"
-          onClick={() => setShowAll(!showAll)}
-        >
-          {showAll ? (
-            <>
-              Shfaq më pak <ChevronRight className="h-4 w-4 text-white -rotate-90" />
-            </>
-          ) : (
-            <>
-              Shfaq të gjitha <ChevronRight className="h-4 w-4 text-white rotate-90" />
-            </>
+      
+      {filtered.length === 0 && filtersApplied ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500 mb-4">Nuk u gjetën prona që përputhen me filtrat e zgjedhur.</p>
+          <Button 
+            onClick={handleClearFilters}
+            variant="outline"
+            className="gap-2"
+          >
+            <X className="h-4 w-4" />
+            Pastro filtrat
+          </Button>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {mappedProperties.map((property) => (
+              <PropertyCard key={property.id} property={property} />
+            ))}
+          </div>
+          {filtered.length > 8 && (
+            <div className="flex justify-center mt-8">
+              <Button 
+                className="gap-2 bg-brand-primary text-white hover:bg-brand-primary/90 px-6"
+                onClick={() => setShowAll(!showAll)}
+              >
+                {showAll ? (
+                  <>
+                    Shfaq më pak <ChevronRight className="h-4 w-4 text-white -rotate-90" />
+                  </>
+                ) : (
+                  <>
+                    Shfaq të gjitha <ChevronRight className="h-4 w-4 text-white rotate-90" />
+                  </>
+                )}
+              </Button>
+            </div>
           )}
-        </Button>
-      </div>
+        </>
+      )}
     </section>
   )
 } 
