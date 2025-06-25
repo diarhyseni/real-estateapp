@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "react-hot-toast"
 
 export default function EditTypePage() {
   const router = useRouter()
@@ -39,10 +39,10 @@ export default function EditTypePage() {
     })
     setIsLoading(false)
     if (res.ok) {
-      toast({ title: "Lloji u përditësua me sukses" })
+      toast.success("Lloji u përditësua me sukses")
       router.push("/admin/types")
     } else {
-      toast({ title: "Gabim", description: "Nuk u përditësua lloji" })
+      toast.error("Nuk u përditësua lloji")
     }
   }
 

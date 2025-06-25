@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft, Eye, EyeOff } from "lucide-react"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "react-hot-toast"
 import { ToastAction } from "@/components/ui/toast"
 
 export default function NewUserPage() {
@@ -47,18 +47,10 @@ export default function NewUserPage() {
       if (!response.ok) {
         throw new Error(data.error || 'Failed to create user')
       }
-      toast({
-        title: "Përdoruesi u krijua me sukses",
-        description: "Përdoruesi i ri u shtua në sistem.",
-        action: <ToastAction altText="Shiko">Shiko</ToastAction>,
-      })
+      toast.success("Përdoruesi u krijua me sukses")
       router.push("/admin/users")
     } catch (error: any) {
-      toast({
-        title: "Gabim",
-        description: error.message || "Ndodhi një gabim gjatë krijimit të përdoruesit.",
-        variant: "destructive",
-      })
+      toast.error(error.message || "Ndodhi një gabim gjatë krijimit të përdoruesit.")
       setIsSubmitting(false)
     }
   }

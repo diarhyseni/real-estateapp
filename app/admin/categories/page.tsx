@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "react-hot-toast"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -72,10 +72,7 @@ export default function CategoriesPage() {
       // Call API to delete
       await fetch(`/api/categories/${categoryToDelete}`, { method: "DELETE" })
       setCategories(categories.filter((category) => category.id !== categoryToDelete))
-      toast({
-        title: "Kategoria u fshi me sukses",
-        description: "Kategoria u fshi nga sistemi.",
-      })
+      toast.success("Kategoria u fshi me sukses")
     }
     setIsDeleteDialogOpen(false)
     setCategoryToDelete(null)

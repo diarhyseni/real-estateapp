@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Trash2, CheckCircle, MessageSquare } from "lucide-react"
-import { toast } from "sonner"
+import { toast } from "react-hot-toast"
 import {
   Dialog,
   DialogContent,

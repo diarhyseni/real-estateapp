@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft } from "lucide-react"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "react-hot-toast"
 import { ToastAction } from "@/components/ui/toast"
 
 export default function NewTypePage() {
@@ -37,19 +37,12 @@ export default function NewTypePage() {
         throw new Error("Failed to create type")
       }
 
-      toast({
-        title: "Lloji u shtua me sukses",
-        description: "Lloji i ri u shtua në sistem.",
-      })
+      toast.success("Lloji u shtua me sukses")
 
       router.push("/admin/types")
       router.refresh()
     } catch (error) {
-      toast({
-        title: "Gabim",
-        description: "Lloji nuk u shtua. Ju lutemi provoni përsëri.",
-        action: <ToastAction altText="Try again">Provo përsëri</ToastAction>,
-      })
+      toast.error("Lloji nuk u shtua. Ju lutemi provoni përsëri.")
     } finally {
       setIsSubmitting(false)
     }

@@ -6,6 +6,7 @@ import { Menu, Heart, User, ChevronDown, LogIn, UserPlus, Settings, LayoutDashbo
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useSession, signOut } from "next-auth/react"
+import { useFavorites } from "@/lib/favorites-context"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -30,6 +31,7 @@ export default function Header() {
   const [imageKey, setImageKey] = useState(0)
   const [prevImage, setPrevImage] = useState(session?.user?.image);
   const [categories, setCategories] = useState([])
+  const { favorites } = useFavorites()
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -134,9 +136,17 @@ export default function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="hidden md:flex text-white hover:bg-brand-primary/90 hover:text-brand-secondary"
+                className="hidden md:flex text-white hover:bg-brand-primary/90 hover:text-brand-secondary relative"
               >
-                <Heart className="h-5 w-5" />
+           
+                <div className="relative">
+                  <Heart className="h-5 w-5" />
+                  {favorites.length > 0 && (
+                    <div className="absolute -top-1 -right-2 bg-red-500 text-white text-[12px] rounded-full h-3.5 w-3.5 flex items-center justify-center font-medium border border-white">
+                      {favorites.length > 99 ? '99+' : favorites.length}
+                    </div>
+                  )}
+                </div>
                 <span className="sr-only">Të preferuarat</span>
               </Button>
             </Link>
@@ -206,7 +216,14 @@ export default function Header() {
                   {session.user.role === "user" && (
                     <DropdownMenuItem asChild className="cursor-pointer">
                       <Link href="/favorites" className="flex items-center gap-2">
-                        <Heart className="h-4 w-4" />
+                        <div className="relative">
+                          <Heart className="h-4 w-4" />
+                          {favorites.length > 0 && (
+                            <div className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] rounded-full h-3 w-3 flex items-center justify-center font-medium border border-white">
+                              {favorites.length > 99 ? '99+' : favorites.length}
+                            </div>
+                          )}
+                        </div>
                         <span>Të preferuarat</span>
                       </Link>
                     </DropdownMenuItem>
@@ -241,7 +258,17 @@ export default function Header() {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild className="cursor-pointer">
-                    <Link href="/favorites">Të preferuarat</Link>
+                    <Link href="/favorites" className="flex items-center gap-2">
+                      <div className="relative">
+                        <Heart className="h-4 w-4" />
+                        {favorites.length > 0 && (
+                          <div className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] rounded-full h-3 w-3 flex items-center justify-center font-medium border border-white">
+                            {favorites.length > 99 ? '99+' : favorites.length}
+                          </div>
+                        )}
+                      </div>
+                      <span>Të preferuarat</span>
+                    </Link>
                   </DropdownMenuItem>
                 </>
               )}
@@ -255,7 +282,7 @@ export default function Header() {
                 size="icon"
                 className="md:hidden text-white hover:bg-brand-primary/90 hover:text-brand-secondary"
               >
-                <Menu className="h-5 w-5" />
+                <Menu className="h-6 w-6" />
                 <span className="sr-only">Menu</span>
               </Button>
             </SheetTrigger>
@@ -385,7 +412,14 @@ export default function Header() {
                         className="flex items-center gap-3 text-base text-white/80 hover:text-brand-secondary transition-colors"
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        <Heart className="h-5 w-5" />
+                        <div className="relative">
+                          <Heart className="h-5 w-5" />
+                          {favorites.length > 0 && (
+                            <div className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] rounded-full h-3 w-3 flex items-center justify-center font-medium border border-white">
+                              {favorites.length > 99 ? '99+' : favorites.length}
+                            </div>
+                          )}
+                        </div>
                         <span>Të preferuarat</span>
                       </Link>
                     )}
@@ -436,7 +470,14 @@ export default function Header() {
                       className="flex items-center gap-3 text-base text-white/80 hover:text-brand-secondary transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      <Heart className="h-5 w-5" />
+                      <div className="relative">
+                        <Heart className="h-5 w-5" />
+                        {favorites.length > 0 && (
+                          <div className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] rounded-full h-3 w-3 flex items-center justify-center font-medium border border-white">
+                            {favorites.length > 99 ? '99+' : favorites.length}
+                          </div>
+                        )}
+                      </div>
                       <span>Të preferuarat</span>
                     </Link>
                   </div>

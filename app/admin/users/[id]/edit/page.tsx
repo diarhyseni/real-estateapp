@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft } from "lucide-react"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "react-hot-toast"
 import React from "react"
 
 export default function EditUserPage({ params }: { params: Promise<{ id: string }> }) {
@@ -28,7 +28,7 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
       .then(res => res.json())
       .then(data => {
         if (data.error) {
-          toast({ title: "Gabim", description: data.error, variant: "destructive" })
+          toast.error(data.error, { style: { background: 'red', color: 'white' } })
           router.push("/admin/users")
         } else {
           setFormData({ name: data.name, email: data.email, role: data.role, password: "" })
@@ -59,10 +59,10 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to update user')
       }
-      toast({ title: "Përdoruesi u përditësua me sukses" })
+      toast.success("Përdoruesi u përditësua me sukses")
       router.push("/admin/users")
     } catch (error: any) {
-      toast({ title: "Gabim", description: error.message, variant: "destructive" })
+      toast.error(error.message, { style: { background: 'red', color: 'white' } })
       setIsSubmitting(false)
     }
   }

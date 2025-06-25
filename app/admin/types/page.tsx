@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "react-hot-toast"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,10 +51,7 @@ export default function TypesPage() {
       // Call API to delete
       await fetch(`/api/types/${typeToDelete}`, { method: "DELETE" })
       await fetchTypes()
-      toast({
-        title: "Lloji u fshi me sukses",
-        description: "Lloji u fshi nga sistemi.",
-      })
+      toast.success("Lloji u fshi me sukses")
     }
     setIsDeleteDialogOpen(false)
     setTypeToDelete(null)

@@ -13,7 +13,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Upload, X, Plus, Loader2, AlertCircle } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "react-hot-toast"
 import { MultiSelect } from "@/components/ui/multiselect"
 import { cn, formatPrice } from "@/lib/utils"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -200,11 +200,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
     // Ensure at least one type (RENT or SALE) is selected
     const hasMainType = newStatuses.some(status => status === 'RENT' || status === 'SALE');
     if (!hasMainType && newStatuses.length > 0) {
-      toast({
-        title: "Kujdes!",
-        description: "Duhet të zgjidhni të paktën një lloj (Me qira ose Në shitje).",
-        variant: "destructive",
-      });
+      toast.error("Duhet të zgjidhni të paktën një lloj (Me qira ose Në shitje).")
       return;
     }
     setStatuses(newStatuses);
@@ -247,11 +243,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         setNewImageFiles(prevFiles => [...prevFiles, ...newFiles])
       } catch (error) {
         console.error('Error handling files:', error)
-        toast({
-          title: "Gabim!",
-          description: "Diçka shkoi keq gjatë ngarkimit të imazheve.",
-          variant: "destructive",
-        })
+        toast.error("Diçka shkoi keq gjatë ngarkimit të imazheve.")
       } finally {
         setIsSubmitting(false)
       }
@@ -281,11 +273,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
       setImages(newImages)
     } catch (error) {
       console.error('Error removing image:', error)
-      toast({
-        title: "Gabim!",
-        description: "Diçka shkoi keq gjatë fshirjes së imazhit.",
-        variant: "destructive",
-      })
+      toast.error("Diçka shkoi keq gjatë fshirjes së imazhit.")
     }
   }
 
@@ -382,11 +370,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   const handleNextTab = () => {
     const isValid = validateTab(activeTab)
     if (!isValid) {
-      toast({
-        title: "Gabim!",
-        description: "Ju lutem plotësoni të gjitha fushat e detyrueshme.",
-        variant: "destructive",
-      })
+      toast.error("Ju lutem plotësoni të gjitha fushat e detyrueshme.")
       return
     }
 
@@ -415,11 +399,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
     const locationValid = validateTab("location")
 
     if (!detailsValid || !featuresValid || !imagesValid || !locationValid) {
-      toast({
-        title: "Gabim!",
-        description: "Ju lutem plotësoni të gjitha fushat e detyrueshme në të gjitha seksionet.",
-        variant: "destructive",
-      })
+      toast.error("Ju lutem plotësoni të gjitha fushat e detyrueshme në të gjitha seksionet.")
       return
     }
 
@@ -507,18 +487,11 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         throw new Error('Failed to update property')
       }
 
-      toast({
-        title: "Sukses!",
-        description: "Prona u përditësua me sukses.",
-      })
+      toast.success("Prona u përditësua me sukses.")
       router.push('/admin')
     } catch (error) {
       console.error('Error updating property:', error)
-      toast({
-        title: "Gabim!",
-        description: error instanceof Error ? error.message : "Diçka shkoi keq.",
-        variant: "destructive",
-      })
+      toast.error(error instanceof Error ? error.message : "Diçka shkoi keq.")
     } finally {
       setIsSubmitting(false)
     }

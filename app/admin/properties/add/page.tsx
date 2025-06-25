@@ -12,7 +12,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Upload, X, Plus, Loader2, AlertCircle } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "react-hot-toast"
 import { MultiSelect } from "@/components/ui/multiselect"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
@@ -195,11 +195,7 @@ export default function AddPropertyPage() {
   const handleNextTab = () => {
     const isValid = validateTab(activeTab)
     if (!isValid) {
-      toast({
-        title: "Gabim!",
-        description: "Ju lutem plotësoni të gjitha fushat e detyrueshme.",
-        variant: "destructive",
-      })
+      toast.error("Ju lutem plotësoni të gjitha fushat e detyrueshme.")
       return
     }
 
@@ -228,11 +224,7 @@ export default function AddPropertyPage() {
     const locationValid = validateTab("location")
 
     if (!detailsValid || !featuresValid || !imagesValid || !locationValid) {
-      toast({
-        title: "Gabim!",
-        description: "Ju lutem plotësoni të gjitha fushat e detyrueshme në të gjitha seksionet.",
-        variant: "destructive",
-      })
+      toast.error("Ju lutem plotësoni të gjitha fushat e detyrueshme në të gjitha seksionet.")
       return
     }
 
@@ -279,21 +271,13 @@ export default function AddPropertyPage() {
 
       // Validate required fields
       if (!propertyData.title || !propertyData.location || !propertyData.area || !propertyData.categoryId) {
-        toast({
-          title: "Gabim!",
-          description: "Ju lutem plotësoni të gjitha fushat e detyrueshme.",
-          variant: "destructive",
-        })
+        toast.error("Ju lutem plotësoni të gjitha fushat e detyrueshme.")
         return
       }
 
       // Validate that at least one status (RENT or SALE) is selected
       if (!statuses.some(status => status === 'RENT' || status === 'SALE')) {
-        toast({
-          title: "Gabim!",
-          description: "Ju lutem zgjidhni të paktën një lloj (Me qira ose Në shitje).",
-          variant: "destructive",
-        })
+        toast.error("Ju lutem zgjidhni të paktën një lloj (Me qira ose Në shitje).")
         return
       }
 
@@ -328,20 +312,13 @@ export default function AddPropertyPage() {
       const data = await response.json()
       console.log('Success response:', data)
 
-      toast({
-        title: "Sukses!",
-        description: "Prona u shtua me sukses.",
-      })
+      toast.success("Prona u shtua me sukses.")
       router.push('/admin')
     } catch (error) {
       console.error('Error creating property:', error)
-      toast({
-        title: "Gabim!",
-        description: error instanceof Error 
-          ? `Error: ${error.message}${error.cause ? `\nCause: ${error.cause}` : ''}`
-          : "Diçka shkoi keq.",
-        variant: "destructive",
-      })
+      toast.error(error instanceof Error 
+        ? `Error: ${error.message}${error.cause ? `\nCause: ${error.cause}` : ''}`
+        : "Diçka shkoi keq.")
     } finally {
       setIsSubmitting(false)
     }
@@ -385,11 +362,7 @@ export default function AddPropertyPage() {
         setImages([...images, ...uploadedUrls])
       } catch (error) {
         console.error('Error uploading images:', error)
-        toast({
-          title: "Gabim!",
-          description: "Diçka shkoi keq gjatë ngarkimit të imazheve.",
-          variant: "destructive",
-        })
+        toast.error("Diçka shkoi keq gjatë ngarkimit të imazheve.")
       } finally {
         setIsSubmitting(false)
       }
@@ -419,11 +392,7 @@ export default function AddPropertyPage() {
       setImages(newImages)
     } catch (error) {
       console.error('Error removing image:', error)
-      toast({
-        title: "Gabim!",
-        description: "Diçka shkoi keq gjatë fshirjes së imazhit.",
-        variant: "destructive",
-      })
+      toast.error("Diçka shkoi keq gjatë fshirjes së imazhit.")
     }
   }
 

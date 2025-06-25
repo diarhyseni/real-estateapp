@@ -12,7 +12,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Upload, X, Plus, MapPin, Loader2 } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "react-hot-toast"
 import { ToastAction } from "@/components/ui/toast"
 
 function RequiredLabel({ children }: { children: React.ReactNode }) {
@@ -173,18 +173,11 @@ export default function NewPropertyPage() {
         throw new Error(errorData.error || errorData.message || 'Failed to create property');
       }
 
-      toast({
-        title: "Sukses!",
-        description: "Prona u shtua me sukses.",
-      })
+      toast.success("Prona u shtua me sukses.")
       router.push('/admin/properties')
     } catch (error) {
       console.error('Error creating property:', error)
-      toast({
-        title: "Gabim!",
-        description: error instanceof Error ? error.message : "Diçka shkoi keq.",
-        variant: "destructive",
-      })
+      toast.error(error instanceof Error ? error.message : "Diçka shkoi keq.")
     } finally {
       setIsSubmitting(false)
     }
@@ -221,11 +214,7 @@ export default function NewPropertyPage() {
         setImages([...images, ...uploadedUrls])
       } catch (error) {
         console.error('Error uploading images:', error)
-        toast({
-          title: "Gabim!",
-          description: "Diçka shkoi keq gjatë ngarkimit të imazheve.",
-          variant: "destructive",
-        })
+        toast.error("Diçka shkoi keq gjatë ngarkimit të imazheve.")
       } finally {
         setIsSubmitting(false)
       }

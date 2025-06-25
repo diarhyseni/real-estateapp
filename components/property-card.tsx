@@ -45,9 +45,13 @@ export default function PropertyCard({ property }: PropertyCardProps) {
     e.preventDefault()
     e.stopPropagation()
 
+    console.log('toggleFavorite called for property:', property.id, 'current favorite state:', favorite)
+
     if (favorite) {
+      console.log('Removing from favorites')
       removeFavorite(property.id)
     } else {
+      console.log('Adding to favorites')
       addFavorite(property.id)
     }
   }
@@ -68,7 +72,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           onClick={toggleFavorite}
         >
           <Heart
-            className={cn("h-4 w-4", favorite ? "fill-brand-secondary text-brand-secondary" : "text-slate-600")}
+            className={cn("h-4 w-4", favorite ? "fill-red-500 text-red-500" : "text-slate-600")}
           />
           <span className="sr-only">Add to favorites</span>
         </Button>

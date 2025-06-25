@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft } from "lucide-react"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "react-hot-toast"
 import { ToastAction } from "@/components/ui/toast"
 
 export default function NewCategoryPage() {
@@ -38,17 +38,15 @@ export default function NewCategoryPage() {
       if (!response.ok) {
         setError(result.error || "Gabim gjatë shtimit të kategorisë.")
         setIsSubmitting(false)
+        toast.error(result.error || "Gabim gjatë shtimit të kategorisë.")
         return
       }
-      toast({
-        title: "Kategoria u krijua me sukses",
-        description: "Kategoria e re u shtua në sistem.",
-        action: <ToastAction altText="Shiko">Shiko</ToastAction>,
-      })
+      toast.success("Kategoria u krijua me sukses")
       router.push("/admin/categories")
     } catch (error) {
       setError("Gabim gjatë shtimit të kategorisë.")
       setIsSubmitting(false)
+      toast.error("Gabim gjatë shtimit të kategorisë.")
     }
   }
 

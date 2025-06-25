@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { Outfit } from "next/font/google"
 import "./globals.css"
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster as HotToaster } from "react-hot-toast"
 import { FavoritesProvider } from "@/lib/favorites-context"
 import AuthProvider from "@/components/providers/session-provider"
 
@@ -23,7 +23,7 @@ export default function RootLayout({
         <AuthProvider>
           <FavoritesProvider>
             {children}
-            <Toaster />
+            <HotToaster position="top-right" />
           </FavoritesProvider>
         </AuthProvider>
       </body>
