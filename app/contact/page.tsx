@@ -34,7 +34,7 @@ export default function ContactPage() {
                 <Mail className="w-6 h-6 text-brand-primary mt-1" />
                 <div>
                   <h3 className="font-semibold">E-mail</h3>
-                  <p className="text-gray-600">info@test.com</p>
+                  <p className="text-gray-600">info@realestate.com</p>
                 </div>
               </div>
 
@@ -42,7 +42,7 @@ export default function ContactPage() {
                 <MapPin className="w-6 h-6 text-brand-primary mt-1" />
                 <div>
                   <h3 className="font-semibold">Lokacioni</h3>
-                  <p className="text-gray-600">Rruga Mbretëresha Teutë, Mitrovicë</p>
+                  <p className="text-gray-600">Rruga Bill Clinton, Prishtinë</p>
                 </div>
               </div>
 

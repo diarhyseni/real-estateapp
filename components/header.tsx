@@ -77,7 +77,7 @@ export default function Header() {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold text-brand-secondary">Mitrovica Real Estate</span>
+            <span className="text-xl font-bold text-brand-secondary">Real Estate</span>
           </Link>
           <nav className="hidden md:flex items-center gap-6">
             <Link

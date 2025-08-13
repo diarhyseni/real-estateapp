@@ -168,12 +168,12 @@ export default async function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div>
                 <p className="text-lg text-gray-800 mb-4">
-                  Ne jemi një agjenci e pasurive të paluajtshme me përvojë shumëvjeçare në tregun e Mitrovicës dhe më gjerë. Qëllimi ynë është t'ju ndihmojmë të gjeni pronën e duhur për ju, qoftë për banim apo investim. Na vizitoni në zyrat tona ose na kontaktoni për çdo pyetje!
+                  Ne jemi një agjenci e pasurive të paluajtshme me përvojë shumëvjeçare në tregun e Prishtines dhe më gjerë. Qëllimi ynë është t'ju ndihmojmë të gjeni pronën e duhur për ju, qoftë për banim apo investim. Na vizitoni në zyrat tona ose na kontaktoni për çdo pyetje!
                 </p>
                 <ul className="text-gray-700 space-y-2">
                   <li><strong>Adresa:</strong> Rruga "Agim Ramadani", 10000 Prishtinë, Kosovë</li>
                   <li><strong>Tel:</strong> +383 49 123 456</li>
-                  <li><strong>Email:</strong> info@mitrovicarealestate.com</li>
+                  <li><strong>Email:</strong> info@realestate.com</li>
                 </ul>
               </div>
               <div>
